@@ -35,6 +35,19 @@ dbus-run-session -- python3 tests/notifications/check.py
 dbus-run-session -- python3 tests/notifications/check.py --unavailable
 ```
 
+Phase 6 adds a compact media widget to the bar and a floating panel opened by
+the widget or `Super+M`. The panel shows MPRIS title, artist, album, artwork,
+progress, player volume, and available playback controls. If several players
+are present, it prefers a playing one until a player is selected in the panel.
+Unsupported controls stay disabled and missing metadata or artwork has a safe
+placeholder. Progress refreshes only while the panel is open and playing.
+
+The MPRIS integration check runs two mock players on a private D-Bus session:
+
+```sh
+dbus-run-session -- python3 tests/media/check.py
+```
+
 ## Dependencies
 
 Install these Arch packages (an AUR helper may be needed for Quickshell):

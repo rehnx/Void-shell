@@ -5,6 +5,7 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Wayland
 import "components"
+import "widgets"
 
 PanelWindow {
     id: root
@@ -12,6 +13,8 @@ PanelWindow {
     required property var modelData
     signal controlCenterRequested()
     signal notificationsRequested()
+    signal mediaRequested()
+    required property var mediaService
     property int notificationCount: 0
 
     screen: modelData
@@ -49,6 +52,13 @@ PanelWindow {
 
         Item {
             Layout.fillWidth: true
+        }
+
+        MediaWidget {
+            Layout.preferredWidth: 242
+            Layout.minimumWidth: 130
+            service: root.mediaService
+            onActivated: root.mediaRequested()
         }
 
         Tray {
