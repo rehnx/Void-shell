@@ -41,6 +41,8 @@ install_managed_file "$project_dir/hypr/keybinds.conf" "$hypr_dir/keybinds.conf"
 install_managed_file "$project_dir/hypr/autostart.conf" "$hypr_dir/autostart.conf"
 install_managed_file "$project_dir/shell/shell.qml" "$shell_dir/shell.qml"
 install_managed_file "$project_dir/shell/Bar.qml" "$shell_dir/Bar.qml"
+install_managed_file "$project_dir/shell/Launcher.qml" "$shell_dir/Launcher.qml"
+install_managed_file "$project_dir/shell/components/AppItem.qml" "$component_dir/AppItem.qml"
 install_managed_file "$project_dir/shell/components/Workspaces.qml" "$component_dir/Workspaces.qml"
 install_managed_file "$project_dir/shell/components/ActiveWindow.qml" "$component_dir/ActiveWindow.qml"
 install_managed_file "$project_dir/shell/components/Clock.qml" "$component_dir/Clock.qml"
@@ -60,4 +62,4 @@ if [[ $backup_created == true ]]; then
     printf 'Backed up replaced files to %s\n' "$backup_dir"
 fi
 
-printf 'RehanShell Phase 2 installation complete.\n'
+printf 'RehanShell Phase 3 installation complete.\n'

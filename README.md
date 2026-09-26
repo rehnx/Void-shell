@@ -1,8 +1,9 @@
 # VoidShell
 
 RehanShell is a small Arch Linux shell built on Hyprland, Quickshell, and QML.
-Phase 2 adds a modular top panel with workspace and system status information to
-the Phase 1 compositor foundation.
+Phase 3 adds a native application launcher to the existing compositor and top
+panel foundation. Press `Super+R` to open it, type to search, use the arrow keys
+to select an application, and press Enter to launch it.
 
 ## Dependencies
 
