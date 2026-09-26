@@ -12,6 +12,29 @@ when available. Brightness requires the optional `brightnessctl` package and
 permission to change the backlight; its value refreshes when the panel opens
 and after adjustments. Missing hardware or services leave controls disabled.
 
+Phase 5 adds notifications through Quickshell's native notification server.
+Open history using the bar's Notifications button or `Super+N`; Escape or a
+click outside closes it. Toasts and history share dismiss controls, and history
+has a Clear all button. App, title, plain-text body, icon, and receipt time are
+shown. Normal toasts expire after six seconds unless the sender supplies a
+timeout; critical notifications and timeout-zero notifications remain until
+dismissed. Up to three toasts are shown at once. History keeps the newest 100
+entries in memory, including expired notifications, until cleared or restarted.
+Transient notifications skip history. No history is written to disk.
+
+Only one notification daemon can own `org.freedesktop.Notifications` on the
+session bus. For normal use, disable any other notification daemon in your own
+session configuration; the installer does not stop existing services. Without
+session D-Bus, the history panel remains usable but cannot receive notifications.
+
+Notification integration checks (requires Python, `gdbus`, Qt Quick Test, and a
+running Wayland session) use a private bus without replacing the desktop daemon:
+
+```sh
+dbus-run-session -- python3 tests/notifications/check.py
+dbus-run-session -- python3 tests/notifications/check.py --unavailable
+```
+
 ## Dependencies
 
 Install these Arch packages (an AUR helper may be needed for Quickshell):

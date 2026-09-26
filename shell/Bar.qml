@@ -11,6 +11,8 @@ PanelWindow {
 
     required property var modelData
     signal controlCenterRequested()
+    signal notificationsRequested()
+    property int notificationCount: 0
 
     screen: modelData
     implicitHeight: 46
@@ -62,6 +64,11 @@ PanelWindow {
         }
 
         Clock {
+        }
+
+        ShellButton {
+            text: "Notifications" + (root.notificationCount > 0 ? " · " + root.notificationCount : "")
+            onClicked: root.notificationsRequested()
         }
 
         Rectangle {

@@ -12,4 +12,13 @@ QtObject {
     readonly property color depth: "#cc152c48"
     readonly property int duration: 220
     readonly property int radius: 28
+    readonly property int radiusSmall: 12
+    readonly property int spacingSmall: 8
+    readonly property int spacingMedium: 16
+    readonly property int fontSmall: 12
+    readonly property int fontBody: 14
+    readonly property int fontHeading: 20
+    readonly property int panelWidth: 420
+    readonly property int panelHeight: 580
+    readonly property int panelTop: 60
 }
