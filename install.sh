@@ -6,6 +6,7 @@ config_home=${XDG_CONFIG_HOME:-"$HOME/.config"}
 state_home=${XDG_STATE_HOME:-"$HOME/.local/state"}
 hypr_dir="$config_home/hypr"
 shell_dir="$config_home/rehanshell/shell"
+component_dir="$shell_dir/components"
 backup_dir="$state_home/rehanshell/backups/$(date +%Y%m%d-%H%M%S-%N)"
 backup_created=false
 
@@ -33,12 +34,20 @@ install_managed_file() {
     printf 'Installed %s\n' "$destination"
 }
 
-mkdir -p -- "$hypr_dir" "$shell_dir"
+mkdir -p -- "$hypr_dir" "$component_dir"
 
 install_managed_file "$project_dir/hypr/hyprland.conf" "$hypr_dir/hyprland.conf"
 install_managed_file "$project_dir/hypr/keybinds.conf" "$hypr_dir/keybinds.conf"
 install_managed_file "$project_dir/hypr/autostart.conf" "$hypr_dir/autostart.conf"
 install_managed_file "$project_dir/shell/shell.qml" "$shell_dir/shell.qml"
+install_managed_file "$project_dir/shell/Bar.qml" "$shell_dir/Bar.qml"
+install_managed_file "$project_dir/shell/components/Workspaces.qml" "$component_dir/Workspaces.qml"
+install_managed_file "$project_dir/shell/components/ActiveWindow.qml" "$component_dir/ActiveWindow.qml"
+install_managed_file "$project_dir/shell/components/Clock.qml" "$component_dir/Clock.qml"
+install_managed_file "$project_dir/shell/components/WifiStatus.qml" "$component_dir/WifiStatus.qml"
+install_managed_file "$project_dir/shell/components/VolumeStatus.qml" "$component_dir/VolumeStatus.qml"
+install_managed_file "$project_dir/shell/components/BatteryStatus.qml" "$component_dir/BatteryStatus.qml"
+install_managed_file "$project_dir/shell/components/Tray.qml" "$component_dir/Tray.qml"
 
 if [[ ! -e $hypr_dir/user.conf && ! -L $hypr_dir/user.conf ]]; then
     install -Dm644 -- "$project_dir/hypr/user.conf" "$hypr_dir/user.conf"
@@ -51,4 +60,4 @@ if [[ $backup_created == true ]]; then
     printf 'Backed up replaced files to %s\n' "$backup_dir"
 fi
 
-printf 'RehanShell Phase 1 installation complete.\n'
+printf 'RehanShell Phase 2 installation complete.\n'
