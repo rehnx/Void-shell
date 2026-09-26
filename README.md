@@ -1,4 +1,4 @@
-# RehanShell
+# VoidShell
 
 Phase 1 is a deliberately small Arch Linux shell foundation built on Hyprland,
 Quickshell, and QML. It contains compositor defaults, essential keybindings,
