@@ -3,6 +3,7 @@ import Quickshell.Services.UPower
 
 Item {
     id: root
+    ControlStyle { id: style }
 
     readonly property var battery: UPower.displayDevice
     readonly property bool available: battery && battery.ready && battery.isPresent && battery.isLaptopBattery
@@ -16,7 +17,7 @@ Item {
 
         anchors.centerIn: parent
         text: root.available ? "Bat " + Math.round(root.battery.percentage * 100) + "%" : ""
-        color: "#cdd6f4"
+        color: style.text
         font.pixelSize: 13
     }
 }

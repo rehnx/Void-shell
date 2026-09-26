@@ -1,7 +1,13 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import Quickshell
 
 ShellRoot {
+    ControlCenter {
+        id: controlCenter
+    }
+
     Launcher {
     }
 
@@ -10,6 +16,7 @@ ShellRoot {
 
         delegate: Component {
             Bar {
+                onControlCenterRequested: controlCenter.toggle(modelData)
             }
         }
     }

@@ -11,9 +11,12 @@ Rectangle {
 
     signal activated()
 
-    implicitHeight: 52
-    radius: 7
-    color: selected || pointer.containsMouse ? "#313244" : "transparent"
+    ControlStyle { id: style }
+    implicitHeight: 56
+    radius: 18
+    color: selected ? "#458edbff" : pointer.containsMouse ? "#228edbff" : "transparent"
+    border.color: selected ? style.border : "transparent"
+    Behavior on color { ColorAnimation { duration: style.duration } }
 
     RowLayout {
         anchors.fill: parent
@@ -30,7 +33,7 @@ Rectangle {
         Text {
             Layout.fillWidth: true
             text: root.application.name
-            color: "#cdd6f4"
+            color: style.text
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter
             font.pixelSize: 14

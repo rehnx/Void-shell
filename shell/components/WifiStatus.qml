@@ -3,6 +3,7 @@ import Quickshell.Networking
 
 Item {
     id: root
+    ControlStyle { id: style }
 
     readonly property var wifiDevice: Networking.devices.values.find(function(device) {
         return device.type === DeviceType.Wifi;
@@ -26,7 +27,7 @@ Item {
 
         anchors.centerIn: parent
         text: root.statusText
-        color: "#cdd6f4"
+        color: style.text
         font.pixelSize: 13
     }
 }

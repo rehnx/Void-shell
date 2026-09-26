@@ -3,6 +3,7 @@ import Quickshell.Services.Pipewire
 
 Item {
     id: root
+    ControlStyle { id: style }
 
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property string statusText: !sink || !sink.ready || !sink.audio
@@ -23,7 +24,7 @@ Item {
 
         anchors.centerIn: parent
         text: root.statusText
-        color: "#cdd6f4"
+        color: style.text
         font.pixelSize: 13
     }
 }

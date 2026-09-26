@@ -5,6 +5,13 @@ Phase 3 adds a native application launcher to the existing compositor and top
 panel foundation. Press `Super+R` to open it, type to search, use the arrow keys
 to select an application, and press Enter to launch it.
 
+Phase 4 adds the floating Control Center: click the rightmost bar button or
+press `Super+C`. Escape or a click outside closes it. Wi-Fi and Bluetooth
+toggles use the system services; volume uses PipeWire. Battery status appears
+when available. Brightness requires the optional `brightnessctl` package and
+permission to change the backlight; its value refreshes when the panel opens
+and after adjustments. Missing hardware or services leave controls disabled.
+
 ## Dependencies
 
 Install these Arch packages (an AUR helper may be needed for Quickshell):

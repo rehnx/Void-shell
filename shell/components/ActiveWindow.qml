@@ -3,6 +3,7 @@ import Quickshell.Hyprland
 
 Item {
     id: root
+    ControlStyle { id: style }
 
     readonly property string windowTitle: Hyprland.activeToplevel && Hyprland.activeToplevel.title
         ? Hyprland.activeToplevel.title
@@ -16,7 +17,7 @@ Item {
 
         anchors.fill: parent
         text: root.windowTitle
-        color: "#cdd6f4"
+        color: style.text
         elide: Text.ElideRight
         verticalAlignment: Text.AlignVCenter
         font.pixelSize: 13

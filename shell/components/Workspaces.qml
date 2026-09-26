@@ -1,8 +1,11 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import Quickshell.Hyprland
 
 RowLayout {
+    ControlStyle { id: palette }
     spacing: 4
 
     Repeater {
@@ -18,13 +21,14 @@ RowLayout {
 
             implicitWidth: 24
             implicitHeight: 22
-            radius: 4
-            color: workspace && workspace.focused ? "#89b4fa" : "transparent"
+            radius: 11
+            color: workspace && workspace.focused ? palette.text : "#158edbff"
+            Behavior on color { ColorAnimation { duration: palette.duration } }
 
             Text {
                 anchors.centerIn: parent
                 text: workspaceButton.modelData
-                color: workspaceButton.workspace && workspaceButton.workspace.focused ? "#1e1e2e" : "#cdd6f4"
+                color: workspaceButton.workspace && workspaceButton.workspace.focused ? "#234967" : palette.text
                 font.pixelSize: 12
             }
 

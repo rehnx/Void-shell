@@ -42,6 +42,10 @@ install_managed_file "$project_dir/hypr/autostart.conf" "$hypr_dir/autostart.con
 install_managed_file "$project_dir/shell/shell.qml" "$shell_dir/shell.qml"
 install_managed_file "$project_dir/shell/Bar.qml" "$shell_dir/Bar.qml"
 install_managed_file "$project_dir/shell/Launcher.qml" "$shell_dir/Launcher.qml"
+install_managed_file "$project_dir/shell/ControlCenter.qml" "$shell_dir/ControlCenter.qml"
+for component in ControlStyle GlassSurface ControlIcon QuickToggle ControlSlider BrightnessControl; do
+    install_managed_file "$project_dir/shell/components/$component.qml" "$component_dir/$component.qml"
+done
 install_managed_file "$project_dir/shell/components/AppItem.qml" "$component_dir/AppItem.qml"
 install_managed_file "$project_dir/shell/components/Workspaces.qml" "$component_dir/Workspaces.qml"
 install_managed_file "$project_dir/shell/components/ActiveWindow.qml" "$component_dir/ActiveWindow.qml"
@@ -62,4 +66,4 @@ if [[ $backup_created == true ]]; then
     printf 'Backed up replaced files to %s\n' "$backup_dir"
 fi
 
-printf 'RehanShell Phase 3 installation complete.\n'
+printf 'RehanShell Phase 4 installation complete.\n'

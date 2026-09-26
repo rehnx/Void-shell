@@ -7,6 +7,7 @@ import "components"
 
 PanelWindow {
     id: root
+    ControlStyle { id: style }
 
     readonly property var targetScreen: {
         const monitor = Hyprland.focusedMonitor;
@@ -70,7 +71,8 @@ PanelWindow {
 
     screen: targetScreen
     visible: false
-    color: "#99000000"
+    color: "#25081222"
+    BackgroundEffect.blurRegion: Region { item: launcherSurface; radius: 28 }
     exclusiveZone: 0
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
@@ -113,14 +115,12 @@ PanelWindow {
         onClicked: root.closeLauncher()
     }
 
-    Rectangle {
+    GlassSurface {
+        id: launcherSurface
         width: Math.min(parent.width - 32, 600)
         height: Math.min(parent.height - 80, 520)
         anchors.centerIn: parent
-        radius: 10
-        color: "#1e1e2e"
-        border.width: 1
-        border.color: "#45475a"
+        elevated: true
 
         MouseArea {
             anchors.fill: parent
@@ -132,16 +132,23 @@ PanelWindow {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 16
-            spacing: 12
+            anchors.margins: 22
+            spacing: 16
+
+            RowLayout {
+                Layout.fillWidth: true
+                Text { text: "Applications"; color: style.text; font.pixelSize: 23; font.weight: Font.DemiBold }
+                Item { Layout.fillWidth: true }
+                Text { text: "VOID SHELL"; color: style.secondary; font.pixelSize: 10; font.letterSpacing: 2 }
+            }
 
             Rectangle {
                 Layout.fillWidth: true
-                implicitHeight: 44
-                radius: 7
-                color: "#313244"
+                implicitHeight: 48
+                radius: 24
+                color: "#4011233c"
                 border.width: searchInput.activeFocus ? 1 : 0
-                border.color: "#89b4fa"
+                border.color: style.accent
 
                 TextInput {
                     id: searchInput
@@ -149,9 +156,9 @@ PanelWindow {
                     anchors.fill: parent
                     anchors.leftMargin: 13
                     anchors.rightMargin: 13
-                    color: "#cdd6f4"
-                    selectionColor: "#89b4fa"
-                    selectedTextColor: "#1e1e2e"
+                    color: style.text
+                    selectionColor: style.accent
+                    selectedTextColor: "#152c48"
                     verticalAlignment: TextInput.AlignVCenter
                     font.pixelSize: 15
                     clip: true
@@ -175,7 +182,7 @@ PanelWindow {
                     Text {
                         anchors.fill: parent
                         text: "Search applications…"
-                        color: "#6c7086"
+                        color: style.secondary
                         verticalAlignment: Text.AlignVCenter
                         font.pixelSize: 15
                         visible: searchInput.text.length === 0
@@ -192,7 +199,7 @@ PanelWindow {
 
                     anchors.fill: parent
                     model: root.filteredApplications
-                    spacing: 3
+                    spacing: 6
                     clip: true
                     currentIndex: root.selectedIndex
 
@@ -215,7 +222,7 @@ PanelWindow {
                     text: searchInput.text.trim().length > 0
                         ? "No applications found"
                         : "No applications installed"
-                    color: "#a6adc8"
+                    color: style.secondary
                     font.pixelSize: 14
                     visible: root.filteredApplications.length === 0
                 }

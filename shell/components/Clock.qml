@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 
 Item {
+    ControlStyle { id: style }
     implicitWidth: label.implicitWidth
     implicitHeight: label.implicitHeight
 
@@ -15,7 +16,7 @@ Item {
 
         anchors.centerIn: parent
         text: Qt.formatDateTime(clock.date, "ddd dd MMM  HH:mm")
-        color: "#cdd6f4"
+        color: style.text
         font.pixelSize: 13
     }
 }
