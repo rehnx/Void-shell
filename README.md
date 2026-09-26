@@ -33,3 +33,4 @@ preserved; put monitor, input, and other machine-specific overrides there.
 Start Hyprland normally. It starts the solid-color wallpaper and the
 `rehanshell` Quickshell configuration once per session.
 # Void-shell
+# Void-shell
