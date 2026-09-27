@@ -1,12 +1,11 @@
 import QtQuick
-import Quickshell.Services.UPower
 
 Item {
     id: root
+    required property var service
     ControlStyle { id: style }
 
-    readonly property var battery: UPower.displayDevice
-    readonly property bool available: battery && battery.ready && battery.isPresent && battery.isLaptopBattery
+    readonly property bool available: service.batteryAvailable
 
     visible: available
     implicitWidth: available ? label.implicitWidth : 0
@@ -16,7 +15,10 @@ Item {
         id: label
 
         anchors.centerIn: parent
-        text: root.available ? "Bat " + Math.round(root.battery.percentage * 100) + "%" : ""
+        text: root.available
+            ? "Bat " + Math.round(root.service.batteryPercentage * 100) + "% · "
+                + root.service.batteryStatus
+            : ""
         color: style.text
         font.pixelSize: 13
     }

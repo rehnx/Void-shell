@@ -9,11 +9,11 @@ import Quickshell.Wayland
 import Quickshell.Networking
 import Quickshell.Bluetooth
 import Quickshell.Services.Pipewire
-import Quickshell.Services.UPower
 import "components"
 
 PanelWindow {
     id: root
+    required property var systemService
     property bool opened: false
     property real reveal: opened ? 1 : 0
     property var requestedScreen: null
@@ -22,8 +22,6 @@ PanelWindow {
     readonly property var adapter: Bluetooth.defaultAdapter
     readonly property var sink: Pipewire.defaultAudioSink
     readonly property bool audioAvailable: !!sink && sink.ready && !!sink.audio
-    readonly property var battery: UPower.displayDevice
-    readonly property bool batteryAvailable: !!battery && battery.ready && battery.isPresent && battery.isLaptopBattery
 
     function toggle(target) {
         if (!opened) requestedScreen = target || null;
@@ -43,12 +41,11 @@ PanelWindow {
     Behavior on reveal { NumberAnimation { duration: style.duration; easing.type: Easing.OutCubic } }
     onOpenedChanged: {
         if (opened) {
-            brightness.refresh();
+            systemService.refreshBrightness();
             Qt.callLater(() => content.forceActiveFocus());
         }
     }
     ControlStyle { id: style }
-    BrightnessControl { id: brightness }
     PwObjectTracker { objects: root.sink ? [root.sink] : [] }
     GlobalShortcut {
         appid: "quickshell"
@@ -135,16 +132,19 @@ PanelWindow {
                     ControlSlider {
                         Layout.fillWidth: true
                         title: "Brightness"
-                        enabled: brightness.available
+                        enabled: root.systemService.brightnessAvailable
                         minimum: 0.01
-                        value: brightness.value
-                        status: brightness.status
-                        onAdjusted: value => brightness.setValue(value)
+                        value: root.systemService.brightnessValue
+                        status: root.systemService.brightnessStatus
+                        onAdjusted: value => root.systemService.setBrightness(value)
                     }
                     Text {
                         Layout.fillWidth: true
                         Layout.topMargin: 4
-                        text: root.batteryAvailable ? "Battery  " + Math.round(root.battery.percentage * 100) + "%  ·  " + UPowerDeviceState.toString(root.battery.state) : "Battery unavailable"
+                        text: root.systemService.batteryAvailable
+                            ? "Battery  " + Math.round(root.systemService.batteryPercentage * 100)
+                                + "%  ·  " + root.systemService.batteryStatus
+                            : "Battery unavailable"
                         color: style.secondary
                         font.pixelSize: 12
                         wrapMode: Text.Wrap

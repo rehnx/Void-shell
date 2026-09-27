@@ -48,6 +48,19 @@ The MPRIS integration check runs two mock players on a private D-Bus session:
 dbus-run-session -- python3 tests/media/check.py
 ```
 
+Phase 7 adds a confirmation-based power menu, volume/brightness/microphone OSD,
+a navigable local calendar, and lightweight CPU, RAM, temperature, and battery
+status. Open the calendar with `Super+D` and the power menu with `Super+P`.
+Hardware media keys display the OSD. Temperature, battery, and brightness stay
+hidden or unavailable when the corresponding hardware or service is absent.
+Brightness control uses the optional `brightnessctl` package.
+
+The core utility integration check disables execution of all power commands:
+
+```sh
+dbus-run-session -- python3 tests/core/check.py
+```
+
 ## Dependencies
 
 Install these Arch packages (an AUR helper may be needed for Quickshell):

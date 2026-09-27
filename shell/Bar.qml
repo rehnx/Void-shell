@@ -14,7 +14,10 @@ PanelWindow {
     signal controlCenterRequested()
     signal notificationsRequested()
     signal mediaRequested()
+    signal calendarRequested()
+    signal powerRequested()
     required property var mediaService
+    required property var systemService
     property int notificationCount: 0
 
     screen: modelData
@@ -61,6 +64,10 @@ PanelWindow {
             onActivated: root.mediaRequested()
         }
 
+        SystemStats {
+            service: root.systemService
+        }
+
         Tray {
         }
 
@@ -70,16 +77,16 @@ PanelWindow {
         VolumeStatus {
         }
 
-        BatteryStatus {
-        }
+        Clock { }
 
-        Clock {
-        }
+        ShellButton { text: "Calendar"; onClicked: root.calendarRequested() }
 
         ShellButton {
             text: "Notifications" + (root.notificationCount > 0 ? " · " + root.notificationCount : "")
             onClicked: root.notificationsRequested()
         }
+
+        ShellButton { text: "Power"; onClicked: root.powerRequested() }
 
         Rectangle {
             implicitWidth: 34

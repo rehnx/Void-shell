@@ -43,13 +43,16 @@ install_managed_file "$project_dir/shell/shell.qml" "$shell_dir/shell.qml"
 install_managed_file "$project_dir/shell/Bar.qml" "$shell_dir/Bar.qml"
 install_managed_file "$project_dir/shell/Launcher.qml" "$shell_dir/Launcher.qml"
 install_managed_file "$project_dir/shell/ControlCenter.qml" "$shell_dir/ControlCenter.qml"
-for component in ControlStyle GlassSurface ControlIcon QuickToggle ControlSlider BrightnessControl ShellButton NotificationCard MediaArtwork MediaControls; do
+for component in ControlStyle GlassSurface ControlIcon QuickToggle ControlSlider BrightnessControl ShellButton NotificationCard MediaArtwork MediaControls OSD; do
     install_managed_file "$project_dir/shell/components/$component.qml" "$component_dir/$component.qml"
 done
 install_managed_file "$project_dir/shell/services/NotificationService.qml" "$shell_dir/services/NotificationService.qml"
 install_managed_file "$project_dir/shell/services/MediaService.qml" "$shell_dir/services/MediaService.qml"
+install_managed_file "$project_dir/shell/services/SystemService.qml" "$shell_dir/services/SystemService.qml"
 install_managed_file "$project_dir/shell/widgets/MediaWidget.qml" "$shell_dir/widgets/MediaWidget.qml"
-for panel in NotificationCenter NotificationToasts MediaPanel; do
+install_managed_file "$project_dir/shell/widgets/Calendar.qml" "$shell_dir/widgets/Calendar.qml"
+install_managed_file "$project_dir/shell/widgets/SystemStats.qml" "$shell_dir/widgets/SystemStats.qml"
+for panel in NotificationCenter NotificationToasts MediaPanel CalendarPanel PowerMenu; do
     install_managed_file "$project_dir/shell/panels/$panel.qml" "$shell_dir/panels/$panel.qml"
 done
 install_managed_file "$project_dir/shell/components/AppItem.qml" "$component_dir/AppItem.qml"
@@ -72,4 +75,4 @@ if [[ $backup_created == true ]]; then
     printf 'Backed up replaced files to %s\n' "$backup_dir"
 fi
 
-printf 'RehanShell Phase 6 installation complete.\n'
+printf 'RehanShell Phase 7 installation complete.\n'
