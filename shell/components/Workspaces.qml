@@ -6,12 +6,12 @@ import Quickshell.Hyprland
 
 RowLayout {
     ControlStyle { id: palette }
-    spacing: 4
+    spacing: Theme.spacingTiny
 
     Repeater {
         model: [1, 2, 3, 4, 5]
 
-        delegate: Rectangle {
+        delegate: ShellButton {
             id: workspaceButton
 
             required property int modelData
@@ -19,31 +19,19 @@ RowLayout {
                 return candidate.id === modelData;
             })
 
-            implicitWidth: 24
-            implicitHeight: 22
-            radius: 11
-            color: workspace && workspace.focused ? palette.text : "#158edbff"
-            Behavior on color { MotionColorAnimation {} }
-            scale: interaction.feedbackScale
-            transform: Translate { y: interaction.lift }
-            InteractionMotion {
-                id: interaction
-                hovered: pointer.containsMouse
-                pressed: pointer.pressed
-            }
+            implicitWidth: Theme.workspaceWidth
+            implicitHeight: Theme.workspaceHeight
+            padding: 0
+            selected: !!workspace && workspace.focused
+            Accessible.name: "Workspace " + modelData
+            onClicked: Hyprland.dispatch("workspace " + modelData)
 
-            Text {
-                anchors.centerIn: parent
+            contentItem: ShellText {
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
                 text: workspaceButton.modelData
-                color: workspaceButton.workspace && workspaceButton.workspace.focused ? "#234967" : palette.text
-                font.pixelSize: 12
-            }
-
-            MouseArea {
-                id: pointer
-                hoverEnabled: true
-                anchors.fill: parent
-                onClicked: Hyprland.dispatch("workspace " + workspaceButton.modelData)
+                color: workspaceButton.selected ? Theme.accent : palette.secondary
+                font.pixelSize: Theme.fontCaption
             }
         }
     }

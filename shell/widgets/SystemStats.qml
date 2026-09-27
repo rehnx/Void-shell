@@ -7,9 +7,9 @@ RowLayout {
     required property var service
     spacing: theme.spacingSmall
     ControlStyle { id: theme }
-    Text { text: "CPU " + Math.round(root.service.cpuUsage * 100) + "%"; color: theme.text; font.pixelSize: theme.fontSmall }
-    Text { text: "RAM " + Math.round(root.service.memoryUsage * 100) + "%"; color: theme.text; font.pixelSize: theme.fontSmall }
-    Text {
+    ShellText { text: "CPU " + Math.round(root.service.cpuUsage * 100) + "%"; color: theme.text; font.pixelSize: theme.fontSmall }
+    ShellText { text: "RAM " + Math.round(root.service.memoryUsage * 100) + "%"; color: theme.text; font.pixelSize: theme.fontSmall }
+    ShellText {
         visible: root.service.temperatureAvailable
         text: Math.round(root.service.temperature) + "°C"
         color: theme.text

@@ -4,32 +4,48 @@ Rectangle {
     id: root
     property bool elevated: false
     property real elevation: 1
-    ControlStyle { id: style }
-    radius: style.radius
-    color: style.surface
+    property string surfaceRole: elevated ? "panel" : "base"
+    property int padding: Theme.cardPadding
+    property bool shadowEnabled: elevated && Theme.shadowsEnabled
+    readonly property int elevationLevel: !shadowEnabled ? Theme.elevationNone
+        : surfaceRole === "card" ? Theme.elevationCard : Theme.elevationPanel
+    property color tint: surfaceRole === "card" ? Theme.surfaceCard
+        : elevated ? Theme.surfaceElevated : Theme.surface
+    property color bottomTint: surfaceRole === "card" ? Theme.surfaceCardBottom : Theme.surfaceBottom
+    radius: Theme.radiusLarge
+    color: tint
     gradient: Gradient {
-        GradientStop { position: 0; color: root.elevated ? "#dc52758c" : "#704b809e" }
-        GradientStop { position: 0.45; color: root.elevated ? "#e12b4c69" : "#55336186" }
-        GradientStop { position: 1; color: root.elevated ? style.depth : "#70334a75" }
+        GradientStop { position: 0; color: root.tint }
+        GradientStop { position: 1; color: root.bottomTint }
     }
-    border.width: 1
-    border.color: style.border
+    border.width: Theme.borderWidth
+    border.color: Theme.border
     Rectangle {
         anchors.fill: parent
-        anchors.margins: 1
-        radius: Math.max(0, root.radius - 1)
+        anchors.margins: Theme.borderWidth
+        radius: Math.max(0, root.radius - Theme.borderWidth)
         color: "transparent"
-        border.color: "#1676bfe9"
+        border.color: Theme.innerBorder
+    }
+    // Static rings, not per-frame blur or offscreen effects.
+    Rectangle {
+        visible: root.shadowEnabled
+        opacity: root.elevation
+        x: -Theme.shadowNearSpread
+        y: -Theme.shadowNearSpread + Theme.shadowOffset
+        width: root.width + Theme.shadowNearSpread * 2
+        height: root.height + Theme.shadowNearSpread * 2
+        z: -1
+        radius: root.radius + Theme.shadowNearSpread
+        color: Theme.shadowNear
     }
     Rectangle {
-        visible: root.elevated
+        visible: root.shadowEnabled && root.elevationLevel === Theme.elevationPanel
         opacity: root.elevation
         anchors.fill: parent
-        anchors.margins: -4
-        z: -1
-        radius: root.radius + 4
-        color: "#14081321"
-        border.width: 4
-        border.color: "#09081321"
+        anchors.margins: -Theme.shadowFarSpread
+        z: -2
+        radius: root.radius + Theme.shadowFarSpread
+        color: Theme.shadowFar
     }
 }

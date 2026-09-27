@@ -19,15 +19,17 @@ Item {
                 ? "Wi-Fi " + activeNetwork.name + " " + Math.round(activeNetwork.signalStrength) + "%"
                 : "Wi-Fi disconnected"
 
-    implicitWidth: label.implicitWidth
+    implicitWidth: Math.min(label.implicitWidth, Theme.statusMaximumWidth)
     implicitHeight: label.implicitHeight
 
-    Text {
+    ShellText {
         id: label
 
-        anchors.centerIn: parent
+        anchors.fill: parent
+        elide: Text.ElideRight
+        verticalAlignment: Text.AlignVCenter
         text: root.statusText
         color: style.text
-        font.pixelSize: 13
+        font.pixelSize: Theme.fontLabel
     }
 }

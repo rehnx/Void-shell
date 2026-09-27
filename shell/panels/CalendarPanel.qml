@@ -36,22 +36,22 @@ PanelWindow {
         id: focusRoot
         anchors.fill: parent
         Keys.onEscapePressed: root.close()
-        FloatingSurface {
+        PanelSurface {
             id: surface
             shown: root.opened
-            width: Math.min(390, parent.width - theme.spacingMedium * 2)
-            height: calendar.implicitHeight + theme.spacingMedium * 2
+            width: Math.min(Theme.panelCompactWidth, parent.width - Theme.spacingMedium * 2)
+            height: Math.min(calendar.implicitHeight + Theme.panelPadding * 2, parent.height - Theme.panelTop - Theme.spacingMedium)
             x: parent.width - width - theme.spacingMedium
             y: theme.panelTop
             transformOrigin: Item.TopRight
             elevated: true
             MouseArea { anchors.fill: parent; onClicked: mouse => mouse.accepted = true }
-            Calendar {
-                id: calendar
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: theme.spacingMedium
+            PanelScrollArea {
+                naturalHeight: calendar.implicitHeight
+                Calendar {
+                    id: calendar
+                    width: parent.width
+                }
             }
         }
     }

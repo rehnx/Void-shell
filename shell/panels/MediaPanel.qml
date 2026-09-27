@@ -46,126 +46,133 @@ PanelWindow {
     FocusScope {
         anchors.fill: parent
         Keys.onEscapePressed: root.close()
-        FloatingSurface {
+        PanelSurface {
             id: surface
             shown: root.opened
             width: Math.min(theme.panelWidth, parent.width - theme.spacingMedium * 2)
-            height: body.implicitHeight + theme.spacingMedium * 2
+            height: Math.min(body.implicitHeight + Theme.panelPadding * 2, parent.height - Theme.panelTop - Theme.spacingMedium)
             x: parent.width - width - theme.spacingMedium
             y: theme.panelTop
             transformOrigin: Item.TopRight
             elevated: true
             MouseArea { anchors.fill: parent; onClicked: mouse => mouse.accepted = true }
-            ColumnLayout {
-                id: body
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: theme.spacingMedium
-                spacing: theme.spacingMedium
-                RowLayout {
-                    Layout.fillWidth: true
-                    Text { Layout.fillWidth: true; text: "Media"; color: theme.text; font.pixelSize: theme.fontHeading }
-                    ShellButton {
-                        id: closeButton
-                        text: "×"
-                        Accessible.name: "Close media panel"
-                        onClicked: root.close()
-                    }
-                }
-                ComboBox {
-                    id: playerPicker
-                    Layout.fillWidth: true
-                    visible: root.service.players.length > 1
-                    model: root.service.players.map(player => player.identity || player.dbusName)
-                    currentIndex: root.service.activeIndex
-                    onActivated: index => root.service.selectPlayer(index)
-                    Accessible.name: "Media player"
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: theme.spacingMedium
-                    MediaArtwork {
-                        Layout.preferredWidth: 88
-                        Layout.preferredHeight: 88
-                        artwork: root.service.artwork
-                    }
-                    ColumnLayout {
-                        Layout.fillWidth: true
-                        Text {
-                            Layout.fillWidth: true
-                            text: root.service.title
-                            textFormat: Text.PlainText
-                            elide: Text.ElideRight
-                            color: theme.text
-                            font.pixelSize: theme.fontBody
-                            font.weight: Font.DemiBold
-                        }
-                        Text {
-                            Layout.fillWidth: true
-                            text: root.service.artist
-                            textFormat: Text.PlainText
-                            elide: Text.ElideRight
-                            color: theme.secondary
-                            font.pixelSize: theme.fontBody
-                        }
-                        Text {
-                            Layout.fillWidth: true
-                            text: root.service.album
-                            textFormat: Text.PlainText
-                            elide: Text.ElideRight
-                            color: theme.secondary
-                            font.pixelSize: theme.fontSmall
-                            visible: text.length > 0
-                        }
-                    }
-                }
-                MediaControls {
-                    Layout.alignment: Qt.AlignHCenter
-                    service: root.service
-                }
+            PanelScrollArea {
+                naturalHeight: body.implicitHeight
                 ColumnLayout {
-                    Layout.fillWidth: true
-                    visible: root.service.canSeek
-                    Slider {
-                        id: progressSlider
+                    id: body
+                    width: parent.width
+                    spacing: theme.spacingMedium
+                    RowLayout {
+                        spacing: Theme.spacingSmall
                         Layout.fillWidth: true
-                        from: 0
-                        to: Math.max(1, root.service.length)
-                        enabled: root.service.canSeek
-                        Accessible.name: "Playback progress"
-                        Binding { target: progressSlider; property: "value"; value: root.service.position; when: !progressSlider.pressed }
-                        onPressedChanged: if (!pressed) root.service.seekTo(value)
+                        SectionHeader { Layout.fillWidth: true; text: "Media" }
+                        ShellButton {
+                            id: closeButton
+                            text: "×"
+                            Accessible.name: "Close media panel"
+                            onClicked: root.close()
+                        }
+                    }
+                    ShellComboBox {
+                        id: playerPicker
+                        Layout.fillWidth: true
+                        visible: root.service.players.length > 1
+                        model: root.service.players.map(player => player.identity || player.dbusName)
+                        currentIndex: root.service.activeIndex
+                        onActivated: index => root.service.selectPlayer(index)
+                        Accessible.name: "Media player"
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        Text { text: root.service.timeText(root.service.position); color: theme.secondary; font.pixelSize: theme.fontSmall }
-                        Item { Layout.fillWidth: true }
-                        Text { text: root.service.timeText(root.service.length); color: theme.secondary; font.pixelSize: theme.fontSmall }
+                        spacing: theme.spacingMedium
+                        MediaArtwork {
+                            Layout.preferredWidth: Theme.artworkSize
+                            Layout.preferredHeight: Theme.artworkSize
+                            artwork: root.service.artwork
+                        }
+                        ColumnLayout {
+                            spacing: Theme.spacingSmall
+                            Layout.fillWidth: true
+                            ShellText {
+                                Layout.fillWidth: true
+                                text: root.service.title
+                                textFormat: Text.PlainText
+                                elide: Text.ElideRight
+                                color: theme.text
+                                font.pixelSize: theme.fontBody
+                                font.weight: Theme.weightTitle
+                            }
+                            ShellText {
+                                Layout.fillWidth: true
+                                text: root.service.artist
+                                textFormat: Text.PlainText
+                                elide: Text.ElideRight
+                                color: theme.secondary
+                                font.pixelSize: theme.fontBody
+                            }
+                            ShellText {
+                                Layout.fillWidth: true
+                                text: root.service.album
+                                textFormat: Text.PlainText
+                                elide: Text.ElideRight
+                                color: theme.secondary
+                                font.pixelSize: theme.fontSmall
+                                visible: text.length > 0
+                            }
+                        }
                     }
-                }
-                Text {
-                    Layout.fillWidth: true
-                    visible: !root.service.canSeek
-                    text: root.service.available ? "Progress unavailable" : "No media player active"
-                    color: theme.secondary
-                    font.pixelSize: theme.fontSmall
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    visible: root.service.canSetVolume
-                    Text { text: "Volume"; color: theme.secondary; font.pixelSize: theme.fontSmall }
-                    Slider {
-                        id: volumeSlider
+                    MediaControls {
+                        Layout.alignment: Qt.AlignHCenter
+                        service: root.service
+                    }
+                    Separator { Layout.fillWidth: true }
+                    ColumnLayout {
+                        spacing: Theme.spacingSmall
                         Layout.fillWidth: true
-                        from: 0
-                        to: 1
-                        Accessible.name: "Media volume"
-                        Binding { target: volumeSlider; property: "value"; value: root.service.volume; when: !volumeSlider.pressed }
-                        onPressedChanged: if (!pressed) root.service.setVolume(value)
+                        visible: root.service.canSeek
+                        ShellSlider {
+                            id: progressSlider
+                            Layout.fillWidth: true
+                            from: 0
+                            to: Math.max(1, root.service.length)
+                            enabled: root.service.canSeek
+                            Accessible.name: "Playback progress"
+                            // Apply after the range changes when a player appears or switches.
+                            Binding { target: progressSlider; property: "value"; value: root.service.position; when: !progressSlider.pressed; delayed: true }
+                            onPressedChanged: if (!pressed) root.service.seekTo(value)
+                        }
+                        RowLayout {
+                            spacing: Theme.spacingSmall
+                            Layout.fillWidth: true
+                            ShellText { text: root.service.timeText(root.service.position); color: theme.secondary; font.pixelSize: theme.fontSmall }
+                            Item { Layout.fillWidth: true }
+                            ShellText { text: root.service.timeText(root.service.length); color: theme.secondary; font.pixelSize: theme.fontSmall }
+                        }
                     }
-                    Text { text: Math.round(root.service.volume * 100) + "%"; color: theme.secondary; font.pixelSize: theme.fontSmall }
+                    ShellText {
+                        Layout.fillWidth: true
+                        visible: !root.service.canSeek
+                        text: root.service.available ? "Progress unavailable" : "No media player active"
+                        color: theme.secondary
+                        font.pixelSize: theme.fontSmall
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    RowLayout {
+                        spacing: Theme.spacingSmall
+                        Layout.fillWidth: true
+                        visible: root.service.canSetVolume
+                        ShellText { text: "Volume"; color: theme.secondary; font.pixelSize: theme.fontSmall }
+                        ShellSlider {
+                            id: volumeSlider
+                            Layout.fillWidth: true
+                            from: 0
+                            to: 1
+                            Accessible.name: "Media volume"
+                            Binding { target: volumeSlider; property: "value"; value: root.service.volume; when: !volumeSlider.pressed }
+                            onPressedChanged: if (!pressed) root.service.setVolume(value)
+                        }
+                        ShellText { text: Math.round(root.service.volume * 100) + "%"; color: theme.secondary; font.pixelSize: theme.fontSmall }
+                    }
                 }
             }
         }

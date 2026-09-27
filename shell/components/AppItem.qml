@@ -12,10 +12,10 @@ Rectangle {
     signal activated()
 
     ControlStyle { id: style }
-    implicitHeight: 56
-    radius: 18
+    implicitHeight: Theme.appRowHeight
+    radius: Theme.radiusMedium
     color: interaction.fill
-    border.color: selected ? style.border : interaction.outline
+    border.color: activeFocus ? interaction.outline : selected ? style.border : "transparent"
     scale: interaction.feedbackScale
     opacity: interaction.contentOpacity
     transform: Translate { y: interaction.lift }
@@ -30,23 +30,23 @@ Rectangle {
 
     RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: 10
-        anchors.rightMargin: 10
-        spacing: 12
+        anchors.leftMargin: Theme.spacingCompact
+        anchors.rightMargin: Theme.spacingCompact
+        spacing: Theme.spacingCompact
 
         IconImage {
-            implicitSize: 32
+            implicitSize: Theme.iconApplication
             source: Quickshell.iconPath(root.application.icon || "application-x-executable",
                 "application-x-executable")
         }
 
-        Text {
+        ShellText {
             Layout.fillWidth: true
             text: root.application.name
             color: style.text
             elide: Text.ElideRight
             verticalAlignment: Text.AlignVCenter
-            font.pixelSize: 14
+            font.pixelSize: Theme.fontBody
         }
     }
 

@@ -37,7 +37,7 @@ PanelWindow {
     mask: Region { width: root.opened ? root.width : 0; height: root.opened ? root.height : 0 }
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    BackgroundEffect.blurRegion: Region { x: surface.x; y: surface.y; width: surface.width; height: surface.height; radius: surface.radius }
+    BackgroundEffect.blurRegion: Region { x: surface.x; y: surface.y; width: Theme.blurEnabled ? surface.width : 0; height: surface.height; radius: surface.radius }
     WlrLayershell.keyboardFocus: opened ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     anchors { top: true; bottom: true; left: true; right: true }
     onOpenedChanged: {
@@ -59,33 +59,30 @@ PanelWindow {
         id: content
         anchors.fill: parent
         Keys.onEscapePressed: root.close()
-        FloatingSurface {
+        PanelSurface {
             id: surface
             shown: root.opened
-            width: Math.min(380, parent.width - 32)
-            height: Math.min(body.implicitHeight + 40, parent.height - 64)
-            x: parent.width - width - 16
-            y: 60
+            width: Math.min(Theme.panelCompactWidth, parent.width - Theme.spacingMedium * 2)
+            height: Math.min(body.implicitHeight + Theme.panelPadding * 2, parent.height - Theme.panelTop - Theme.spacingMedium)
+            x: parent.width - width - Theme.spacingMedium
+            y: Theme.panelTop
             transformOrigin: Item.TopRight
-            radius: 28
+            radius: Theme.radiusLarge
             elevated: true
             MouseArea { anchors.fill: parent; onClicked: mouse => mouse.accepted = true }
-            Flickable {
-                anchors.fill: parent
-                anchors.margins: 20
-                contentHeight: body.implicitHeight
-                clip: true
-                boundsBehavior: Flickable.StopAtBounds
+            PanelScrollArea {
+                naturalHeight: body.implicitHeight
                 ColumnLayout {
                     id: body
                     width: parent.width
-                    spacing: 12
+                    spacing: Theme.spacingCompact
                     RowLayout {
+                        spacing: Theme.spacingSmall
                         Layout.fillWidth: true
                         ColumnLayout {
-                            spacing: 3
-                            Text { text: "Control Center"; color: style.text; font.pixelSize: 22; font.weight: Font.DemiBold }
-                            Text { text: "VOID SHELL"; color: style.secondary; font.pixelSize: 10; font.letterSpacing: 2 }
+                            spacing: Theme.spacingTiny
+                            SectionHeader { text: "Control Center" }
+                            ShellText { text: "VOID SHELL"; color: style.secondary; font.pixelSize: Theme.fontCaption; font.letterSpacing: Theme.trackingLabel }
                         }
                         Item { Layout.fillWidth: true }
                         ShellButton {
@@ -93,12 +90,11 @@ PanelWindow {
                             text: "×"
                             Accessible.name: "Close Control Center"
                             onClicked: root.close()
-                            contentItem: Text { text: "×"; color: style.secondary; font.pixelSize: 25; horizontalAlignment: Text.AlignHCenter }
                         }
                     }
                     RowLayout {
                         Layout.fillWidth: true
-                        spacing: 12
+                        spacing: Theme.spacingCompact
                         QuickToggle {
                             Layout.fillWidth: true
                             title: "Wi-Fi"; symbol: "wifi"
@@ -116,6 +112,7 @@ PanelWindow {
                             onClicked: root.adapter.enabled = !root.adapter.enabled
                         }
                     }
+                    Separator { Layout.fillWidth: true }
                     ControlSlider {
                         Layout.fillWidth: true
                         title: "Volume"
@@ -137,15 +134,15 @@ PanelWindow {
                         status: root.systemService.brightnessStatus
                         onAdjusted: value => root.systemService.setBrightness(value)
                     }
-                    Text {
+                    ShellText {
                         Layout.fillWidth: true
-                        Layout.topMargin: 4
+                        Layout.topMargin: Theme.spacingTiny
                         text: root.systemService.batteryAvailable
                             ? "Battery  " + Math.round(root.systemService.batteryPercentage * 100)
                                 + "%  ·  " + root.systemService.batteryStatus
                             : "Battery unavailable"
                         color: style.secondary
-                        font.pixelSize: 12
+                        font.pixelSize: Theme.fontCaption
                         wrapMode: Text.Wrap
                     }
                 }

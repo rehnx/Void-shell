@@ -6,6 +6,7 @@ import Quickshell
 import "../components"
 
 ColumnLayout {
+    spacing: Theme.spacingSmall
     id: root
     property date shownMonth: new Date(clock.date.getFullYear(), clock.date.getMonth(), 1)
     readonly property date today: clock.date
@@ -34,12 +35,14 @@ ColumnLayout {
     }
 
     RowLayout {
+        spacing: Theme.spacingSmall
         Layout.fillWidth: true
         ShellButton { text: "‹"; Accessible.name: "Previous month"; onClicked: root.previousMonth() }
         ShellButton {
             Layout.fillWidth: true
             text: root.monthNames[root.shownMonth.getMonth()] + " " + root.shownMonth.getFullYear()
             Accessible.name: "Show current month"
+            prominent: true
             onClicked: root.showCurrentMonth()
         }
         ShellButton { text: "›"; Accessible.name: "Next month"; onClicked: root.nextMonth() }
@@ -51,7 +54,7 @@ ColumnLayout {
         columnSpacing: theme.spacingSmall
         Repeater {
             model: root.dayNames
-            Text {
+            ShellText {
                 required property string modelData
                 Layout.fillWidth: true
                 text: modelData
@@ -70,20 +73,20 @@ ColumnLayout {
                     && cellDate.getFullYear() === root.shownMonth.getFullYear()
                 readonly property bool isToday: root.sameDay(cellDate, root.today)
                 Layout.fillWidth: true
-                implicitHeight: 34
+                implicitHeight: Theme.calendarCellHeight
                 radius: theme.radiusSmall
                 color: isToday ? theme.accent : "transparent"
-                Text {
+                ShellText {
                     anchors.centerIn: parent
                     text: cell.cellDate.getDate()
-                    color: cell.isToday ? theme.depth : cell.currentMonth ? theme.text : theme.secondary
-                    opacity: cell.currentMonth || cell.isToday ? 1 : 0.45
+                    color: cell.isToday ? Theme.textOnAccent : cell.currentMonth ? theme.text : theme.secondary
+                    opacity: cell.currentMonth || cell.isToday ? 1 : Theme.mutedOpacity
                     font.pixelSize: theme.fontBody
                 }
             }
         }
     }
-    Text {
+    ShellText {
         Layout.fillWidth: true
         text: "No events"
         color: theme.secondary

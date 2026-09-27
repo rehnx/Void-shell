@@ -45,7 +45,7 @@ PanelWindow {
     FocusScope {
         anchors.fill: parent
         Keys.onEscapePressed: root.opened = false
-        FloatingSurface {
+        PanelSurface {
             id: surface
             shown: root.opened
             width: Math.min(theme.panelWidth, parent.width - theme.spacingMedium * 2)
@@ -57,14 +57,16 @@ PanelWindow {
             MouseArea { anchors.fill: parent; onClicked: mouse => mouse.accepted = true }
             ColumnLayout {
                 anchors.fill: parent
-                anchors.margins: theme.spacingMedium
+                anchors.margins: Theme.panelPadding
                 spacing: theme.spacingMedium
                 RowLayout {
+                    spacing: Theme.spacingSmall
                     Layout.fillWidth: true
-                    Text { Layout.fillWidth: true; text: "Notifications"; color: theme.text; font.pixelSize: theme.fontHeading }
+                    SectionHeader { Layout.fillWidth: true; text: "Notifications" }
                     ShellButton { text: "Clear all"; enabled: root.service.count > 0; onClicked: root.service.clearAll() }
                     ShellButton { id: closeButton; text: "×"; Accessible.name: "Close notifications"; onClicked: root.opened = false }
                 }
+                Separator { Layout.fillWidth: true }
                 Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
@@ -83,7 +85,7 @@ PanelWindow {
                             onDismissed: root.service.dismiss(entry.id)
                         }
                     }
-                    Text {
+                    ShellText {
                         anchors.centerIn: parent
                         visible: root.service.count === 0
                         text: "No notifications yet"

@@ -1,4 +1,14 @@
 singleton Motion 1.0 Motion.qml
+singleton Theme 1.0 Theme.qml
+ShellText 1.0 ShellText.qml
+PanelSurface 1.0 PanelSurface.qml
+PanelScrollArea 1.0 PanelScrollArea.qml
+PopupSurface 1.0 PopupSurface.qml
+CardSurface 1.0 CardSurface.qml
+Separator 1.0 Separator.qml
+SectionHeader 1.0 SectionHeader.qml
+ShellSlider 1.0 ShellSlider.qml
+ShellComboBox 1.0 ShellComboBox.qml
 ActiveWindow 1.0 ActiveWindow.qml
 AnimatedVisibility 1.0 AnimatedVisibility.qml
 AppItem 1.0 AppItem.qml

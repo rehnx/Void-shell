@@ -11,7 +11,7 @@ Item {
     implicitWidth: available ? label.implicitWidth : 0
     implicitHeight: label.implicitHeight
 
-    Text {
+    ShellText {
         id: label
 
         anchors.centerIn: parent
@@ -20,6 +20,6 @@ Item {
                 + root.service.batteryStatus
             : ""
         color: style.text
-        font.pixelSize: 13
+        font.pixelSize: Theme.fontLabel
     }
 }

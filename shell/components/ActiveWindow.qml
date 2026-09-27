@@ -9,10 +9,10 @@ Item {
         ? Hyprland.activeToplevel.title
         : "Desktop"
 
-    implicitWidth: Math.min(title.implicitWidth, 360)
+    implicitWidth: Math.min(title.implicitWidth, Theme.activeWindowMaximumWidth)
     implicitHeight: title.implicitHeight
 
-    Text {
+    ShellText {
         id: title
 
         anchors.fill: parent
@@ -20,6 +20,6 @@ Item {
         color: style.text
         elide: Text.ElideRight
         verticalAlignment: Text.AlignVCenter
-        font.pixelSize: 13
+        font.pixelSize: Theme.fontLabel
     }
 }

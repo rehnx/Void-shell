@@ -4,7 +4,7 @@ import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 
 RowLayout {
-    spacing: 6
+    spacing: Theme.spacingSmall
 
     Repeater {
         model: SystemTray.items
@@ -14,12 +14,12 @@ RowLayout {
 
             required property var modelData
 
-            implicitWidth: 18
-            implicitHeight: 18
+            implicitWidth: Theme.iconMedium
+            implicitHeight: Theme.iconMedium
 
             IconImage {
                 anchors.centerIn: parent
-                implicitSize: 16
+                implicitSize: Theme.iconSmall
                 source: trayItem.modelData.icon
             }
 

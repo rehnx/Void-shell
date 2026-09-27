@@ -24,7 +24,7 @@ QtObject {
     readonly property real slideDistance: 10
     readonly property real hoverLift: -1
     readonly property real pressScale: 0.975
-    readonly property real disabledOpacity: 0.5
+    readonly property real disabledOpacity: Theme.disabledOpacity
 
     function duration(milliseconds: int): int {
         return !enabled || reducedMotion ? 0 : Math.round(milliseconds * speed);

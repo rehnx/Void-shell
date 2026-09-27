@@ -19,12 +19,12 @@ Item {
         objects: root.sink ? [root.sink] : []
     }
 
-    Text {
+    ShellText {
         id: label
 
         anchors.centerIn: parent
         text: root.statusText
         color: style.text
-        font.pixelSize: 13
+        font.pixelSize: Theme.fontLabel
     }
 }

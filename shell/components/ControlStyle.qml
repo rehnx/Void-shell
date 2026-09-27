@@ -1,24 +1,24 @@
 import QtQuick
 
 QtObject {
-    // Shared glass palette for the bar, launcher and Control Center.
-    readonly property color text: "#f4faff"
-    readonly property color secondary: "#c0d6e8"
-    readonly property color accent: "#8edbff"
-    readonly property color surface: "#dd203e58"
-    readonly property color tile: "#354b90b4"
-    readonly property color border: "#55d9f2ff"
-    readonly property color highlight: "#609bcee8"
-    readonly property color depth: "#cc152c48"
+    // Compatibility facade: existing consumers resolve to the same singleton.
+    readonly property color text: Theme.textPrimary
+    readonly property color secondary: Theme.textSecondary
+    readonly property color accent: Theme.accent
+    readonly property color surface: Theme.surface
+    readonly property color tile: Theme.hover
+    readonly property color border: Theme.border
+    readonly property color highlight: Theme.pressed
+    readonly property color depth: Theme.surfaceInset
     readonly property int duration: Motion.settle
-    readonly property int radius: 28
-    readonly property int radiusSmall: 12
-    readonly property int spacingSmall: 8
-    readonly property int spacingMedium: 16
-    readonly property int fontSmall: 12
-    readonly property int fontBody: 14
-    readonly property int fontHeading: 20
-    readonly property int panelWidth: 420
-    readonly property int panelHeight: 580
-    readonly property int panelTop: 60
+    readonly property int radius: Theme.radiusLarge
+    readonly property int radiusSmall: Theme.radiusSmall
+    readonly property int spacingSmall: Theme.spacingSmall
+    readonly property int spacingMedium: Theme.spacingMedium
+    readonly property int fontSmall: Theme.fontCaption
+    readonly property int fontBody: Theme.fontBody
+    readonly property int fontHeading: Theme.fontTitle
+    readonly property int panelWidth: Theme.panelWidth
+    readonly property int panelHeight: Theme.panelHeight
+    readonly property int panelTop: Theme.panelTop
 }

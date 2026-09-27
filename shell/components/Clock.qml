@@ -11,12 +11,12 @@ Item {
         precision: SystemClock.Minutes
     }
 
-    Text {
+    ShellText {
         id: label
 
         anchors.centerIn: parent
         text: Qt.formatDateTime(clock.date, "ddd dd MMM  HH:mm")
         color: style.text
-        font.pixelSize: 13
+        font.pixelSize: Theme.fontLabel
     }
 }

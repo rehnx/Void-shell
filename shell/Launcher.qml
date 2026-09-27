@@ -73,8 +73,8 @@ PanelWindow {
 
     screen: targetScreen
     visible: launcherSurface.present
-    color: Qt.rgba(0.03, 0.07, 0.13, 0.145 * launcherSurface.progress)
-    BackgroundEffect.blurRegion: Region { x: launcherSurface.x; y: launcherSurface.y; width: launcherSurface.width; height: launcherSurface.height; radius: launcherSurface.radius }
+    color: Qt.rgba(Theme.scrim.r, Theme.scrim.g, Theme.scrim.b, Theme.scrimOpacity * launcherSurface.progress)
+    BackgroundEffect.blurRegion: Region { x: launcherSurface.x; y: launcherSurface.y; width: Theme.blurEnabled ? launcherSurface.width : 0; height: launcherSurface.height; radius: launcherSurface.radius }
     exclusiveZone: 0
     // Release pointer input immediately while the exit remains on screen.
     mask: Region { width: root.opened ? root.width : 0; height: root.opened ? root.height : 0 }
@@ -119,12 +119,12 @@ PanelWindow {
         onClicked: root.closeLauncher()
     }
 
-    FloatingSurface {
+    PanelSurface {
         id: launcherSurface
         shown: root.opened
         direction: 1
-        width: Math.min(parent.width - 32, 600)
-        height: Math.min(parent.height - 80, 520)
+        width: Math.min(parent.width - Theme.spacingXLarge, Theme.launcherWidth)
+        height: Math.min(parent.height - Theme.panelTop * 2, Theme.launcherHeight)
         anchors.centerIn: parent
         elevated: true
 
@@ -138,35 +138,38 @@ PanelWindow {
 
         ColumnLayout {
             anchors.fill: parent
-            anchors.margins: 22
-            spacing: 16
+            anchors.margins: Theme.panelPadding
+            spacing: Theme.spacingMedium
 
             RowLayout {
+                spacing: Theme.spacingSmall
                 Layout.fillWidth: true
-                Text { text: "Applications"; color: style.text; font.pixelSize: 23; font.weight: Font.DemiBold }
+                SectionHeader { Layout.fillWidth: true; text: "Applications"; role: "display" }
                 Item { Layout.fillWidth: true }
-                Text { text: "VOID SHELL"; color: style.secondary; font.pixelSize: 10; font.letterSpacing: 2 }
+                ShellText { text: "VOID SHELL"; color: style.secondary; font.pixelSize: Theme.fontCaption; font.letterSpacing: Theme.trackingLabel }
             }
 
             Rectangle {
                 Layout.fillWidth: true
-                implicitHeight: 48
-                radius: 24
-                color: "#4011233c"
-                border.width: searchInput.activeFocus ? 1 : 0
-                border.color: style.accent
+                implicitHeight: Theme.inputHeight
+                radius: Theme.radiusMedium
+                color: Theme.surfaceInset
+                border.width: Theme.borderWidth
+                border.color: searchInput.activeFocus ? Theme.accent : Theme.border
+                Behavior on border.color { MotionColorAnimation {} }
 
                 TextInput {
                     id: searchInput
 
                     anchors.fill: parent
-                    anchors.leftMargin: 13
-                    anchors.rightMargin: 13
+                    anchors.leftMargin: Theme.spacingCompact
+                    anchors.rightMargin: Theme.spacingCompact
                     color: style.text
                     selectionColor: style.accent
-                    selectedTextColor: "#152c48"
+                    selectedTextColor: Theme.textOnAccent
+                    font.family: Theme.fontFamily
                     verticalAlignment: TextInput.AlignVCenter
-                    font.pixelSize: 15
+                    font.pixelSize: Theme.fontBody
                     clip: true
 
                     Keys.onPressed: function(event) {
@@ -185,12 +188,12 @@ PanelWindow {
                         }
                     }
 
-                    Text {
+                    ShellText {
                         anchors.fill: parent
                         text: "Search applications…"
                         color: style.secondary
                         verticalAlignment: Text.AlignVCenter
-                        font.pixelSize: 15
+                        font.pixelSize: Theme.fontBody
                         visible: searchInput.text.length === 0
                     }
                 }
@@ -205,7 +208,7 @@ PanelWindow {
 
                     anchors.fill: parent
                     model: root.filteredApplications
-                    spacing: 6
+                    spacing: Theme.spacingSmall
                     clip: true
                     currentIndex: root.selectedIndex
 
@@ -223,13 +226,13 @@ PanelWindow {
                     }
                 }
 
-                Text {
+                ShellText {
                     anchors.centerIn: parent
                     text: searchInput.text.trim().length > 0
                         ? "No applications found"
                         : "No applications installed"
                     color: style.secondary
-                    font.pixelSize: 14
+                    font.pixelSize: Theme.fontBody
                     visible: root.filteredApplications.length === 0
                 }
             }

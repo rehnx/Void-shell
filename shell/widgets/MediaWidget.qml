@@ -6,18 +6,18 @@ Item {
     id: root
     required property var service
     signal activated()
-    implicitWidth: 242
-    implicitHeight: 30
+    implicitWidth: Theme.mediaWidgetWidth
+    implicitHeight: Theme.buttonHeight
     ControlStyle { id: theme }
     RowLayout {
         anchors.fill: parent
         spacing: theme.spacingSmall
         MediaArtwork {
-            Layout.preferredWidth: 27
-            Layout.preferredHeight: 27
+            Layout.preferredWidth: Theme.artworkCompactSize
+            Layout.preferredHeight: Theme.artworkCompactSize
             artwork: root.service.artwork
         }
-        Text {
+        ShellText {
             Layout.fillWidth: true
             text: root.service.title
             textFormat: Text.PlainText

@@ -3,13 +3,12 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Widgets
 
-GlassSurface {
+CardSurface {
     id: root
     required property var entry
     property bool compact: false
     signal dismissed()
     ControlStyle { id: theme }
-    radius: theme.radiusSmall
     implicitHeight: content.implicitHeight + theme.spacingMedium * 2
     ColumnLayout {
         id: content
@@ -19,12 +18,13 @@ GlassSurface {
         anchors.margins: theme.spacingMedium
         spacing: theme.spacingSmall
         RowLayout {
+            spacing: Theme.spacingSmall
             Layout.fillWidth: true
             IconImage {
-                implicitSize: 24
+                implicitSize: Theme.iconLarge
                 source: root.entry.icon ? (root.entry.icon.startsWith("/") ? "file://" + root.entry.icon : root.entry.icon.includes(":") ? root.entry.icon : Quickshell.iconPath(root.entry.icon, "application-x-executable")) : Quickshell.iconPath("application-x-executable")
             }
-            Text {
+            ShellText {
                 Layout.fillWidth: true
                 text: root.entry.app
                 textFormat: Text.PlainText
@@ -32,8 +32,10 @@ GlassSurface {
                 color: theme.secondary
                 font.pixelSize: theme.fontSmall
             }
-            Text {
+            ShellText {
                 text: Qt.formatDateTime(new Date(root.entry.time), "dd MMM HH:mm")
+                Layout.maximumWidth: root.width / 3
+                elide: Text.ElideRight
                 color: theme.secondary
                 font.pixelSize: theme.fontSmall
             }
@@ -43,7 +45,7 @@ GlassSurface {
                 onClicked: root.dismissed()
             }
         }
-        Text {
+        ShellText {
             Layout.fillWidth: true
             text: root.entry.title
             textFormat: Text.PlainText
@@ -52,9 +54,9 @@ GlassSurface {
             elide: Text.ElideRight
             color: theme.text
             font.pixelSize: theme.fontBody
-            font.weight: Font.DemiBold
+            font.weight: Theme.weightTitle
         }
-        Text {
+        ShellText {
             Layout.fillWidth: true
             visible: text.length > 0
             text: root.entry.body

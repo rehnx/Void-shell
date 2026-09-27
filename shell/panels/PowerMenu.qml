@@ -51,7 +51,7 @@ PanelWindow {
 
     screen: requestedScreen || Quickshell.screens.find(screen => Hyprland.focusedMonitor && screen.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
     visible: surface.present
-    color: Qt.rgba(0, 0, 0, 0.145 * surface.progress)
+    color: Qt.rgba(Theme.scrim.r, Theme.scrim.g, Theme.scrim.b, Theme.scrimOpacity * surface.progress)
     exclusiveZone: 0
     // Release pointer input immediately while the exit remains on screen.
     mask: Region { width: root.opened ? root.width : 0; height: root.opened ? root.height : 0 }
@@ -69,56 +69,57 @@ PanelWindow {
         id: focusRoot
         anchors.fill: parent
         Keys.onEscapePressed: root.close()
-        FloatingSurface {
+        PanelSurface {
             id: surface
             shown: root.opened
             animateGeometry: true
-            width: Math.min(390, parent.width - theme.spacingMedium * 2)
-            height: content.implicitHeight + theme.spacingMedium * 2
+            width: Math.min(Theme.panelCompactWidth, parent.width - Theme.spacingMedium * 2)
+            height: Math.min(content.implicitHeight + Theme.panelPadding * 2, parent.height - Theme.panelTop * 2)
             anchors.centerIn: parent
             elevated: true
             MouseArea { anchors.fill: parent; onClicked: mouse => mouse.accepted = true }
-            ColumnLayout {
-                id: content
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.top: parent.top
-                anchors.margins: theme.spacingMedium
-                spacing: theme.spacingMedium
-                Text {
-                    Layout.fillWidth: true
-                    text: root.displayedAction ? "Confirm " + root.displayedAction : "Power"
-                    color: theme.text
-                    font.pixelSize: theme.fontHeading
-                    horizontalAlignment: Text.AlignHCenter
-                }
+            PanelScrollArea {
+                naturalHeight: content.implicitHeight
                 ColumnLayout {
-                    Layout.fillWidth: true
-                    visible: !root.displayedAction
-                    Repeater {
-                        model: root.actions
-                        ShellButton {
-                            required property var modelData
-                            Layout.fillWidth: true
-                            text: modelData.label
-                            onClicked: root.request(modelData.name)
+                    id: content
+                    width: parent.width
+                    spacing: theme.spacingMedium
+                    SectionHeader {
+                        Layout.fillWidth: true
+                        text: root.displayedAction ? "Confirm " + root.displayedAction : "Power"
+                        color: theme.text
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    ColumnLayout {
+                        spacing: Theme.spacingSmall
+                        Layout.fillWidth: true
+                        visible: !root.displayedAction
+                        Repeater {
+                            model: root.actions
+                            ShellButton {
+                                required property var modelData
+                                Layout.fillWidth: true
+                                text: modelData.label
+                                onClicked: root.request(modelData.name)
+                            }
                         }
                     }
-                }
-                Text {
-                    Layout.fillWidth: true
-                    visible: !!root.displayedAction
-                    text: "This will end the current session or interrupt running work."
-                    wrapMode: Text.Wrap
-                    color: theme.secondary
-                    font.pixelSize: theme.fontBody
-                    horizontalAlignment: Text.AlignHCenter
-                }
-                RowLayout {
-                    Layout.fillWidth: true
-                    visible: !!root.displayedAction
-                    ShellButton { Layout.fillWidth: true; text: "Cancel"; onClicked: root.pendingAction = "" }
-                    ShellButton { Layout.fillWidth: true; text: "Confirm"; onClicked: root.confirm() }
+                    ShellText {
+                        Layout.fillWidth: true
+                        visible: !!root.displayedAction
+                        text: "This will end the current session or interrupt running work."
+                        wrapMode: Text.Wrap
+                        color: theme.secondary
+                        font.pixelSize: theme.fontBody
+                        horizontalAlignment: Text.AlignHCenter
+                    }
+                    RowLayout {
+                        spacing: Theme.spacingSmall
+                        Layout.fillWidth: true
+                        visible: !!root.displayedAction
+                        ShellButton { Layout.fillWidth: true; text: "Cancel"; onClicked: root.pendingAction = "" }
+                        ShellButton { Layout.fillWidth: true; text: "Confirm"; prominent: true; onClicked: root.confirm() }
+                    }
                 }
             }
         }

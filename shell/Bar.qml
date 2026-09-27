@@ -21,16 +21,16 @@ PanelWindow {
     property int notificationCount: 0
 
     screen: modelData
-    implicitHeight: 46
+    implicitHeight: Theme.barHeight
     exclusiveZone: implicitHeight
     color: "transparent"
     ControlStyle { id: style }
-    BackgroundEffect.blurRegion: Region { item: barSurface; radius: 18 }
+    BackgroundEffect.blurRegion: Region { x: barSurface.x; y: barSurface.y; width: Theme.blurEnabled ? barSurface.width : 0; height: barSurface.height; radius: barSurface.radius }
     GlassSurface {
         id: barSurface
         anchors.fill: parent
-        anchors.margins: 5
-        radius: 18
+        anchors.margins: Theme.spacingTiny
+        radius: Theme.radiusMedium
         elevated: true
     }
 
@@ -42,15 +42,17 @@ PanelWindow {
 
     RowLayout {
         anchors.fill: parent
-        anchors.leftMargin: 18
-        anchors.rightMargin: 18
-        spacing: 12
+        anchors.leftMargin: Theme.spacingMedium
+        anchors.rightMargin: Theme.spacingMedium
+        spacing: Theme.spacingCompact
 
         Workspaces {
         }
 
         ActiveWindow {
-            Layout.maximumWidth: 360
+            Layout.fillWidth: true
+            Layout.minimumWidth: 0
+            Layout.maximumWidth: Theme.activeWindowMaximumWidth
         }
 
         Item {
@@ -58,8 +60,10 @@ PanelWindow {
         }
 
         MediaWidget {
-            Layout.preferredWidth: 242
-            Layout.minimumWidth: 130
+            Layout.fillWidth: true
+            Layout.preferredWidth: Theme.mediaWidgetWidth
+            Layout.minimumWidth: Theme.mediaWidgetMinimum
+            Layout.maximumWidth: Theme.mediaWidgetWidth
             service: root.mediaService
             onActivated: root.mediaRequested()
         }
@@ -89,13 +93,13 @@ PanelWindow {
         ShellButton { text: "Power"; onClicked: root.powerRequested() }
 
         ShellButton {
-            implicitWidth: 34
-            implicitHeight: 28
+            implicitWidth: Theme.buttonHeight
+            implicitHeight: Theme.buttonHeight
             Accessible.name: "Open Control Center"
             onClicked: root.controlCenterRequested()
             contentItem: ControlIcon {
                 name: "controls"
-                width: 18; height: 18
+                width: Theme.iconSmall; height: Theme.iconSmall
                 ink: style.text
             }
         }

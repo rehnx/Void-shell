@@ -12,15 +12,15 @@ PanelWindow {
     screen: Quickshell.screens.find(screen => Hyprland.focusedMonitor && screen.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
     visible: surface.present
     color: "transparent"
-    implicitWidth: 300
-    implicitHeight: 76
+    implicitWidth: Theme.osdWidth
+    implicitHeight: Theme.osdHeight
     exclusiveZone: 0
     exclusionMode: ExclusionMode.Ignore
     anchors { bottom: true }
-    margins.bottom: 56
+    margins.bottom: Theme.osdBottom
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-    FloatingSurface {
+    PopupSurface {
         id: surface
         shown: root.service.osdVisible
         direction: 1
@@ -30,26 +30,28 @@ PanelWindow {
             anchors.fill: parent
             anchors.margins: theme.spacingMedium
             spacing: theme.spacingMedium
-            Text {
-                width: 26
+            ShellText {
+                width: Theme.iconLarge
                 anchors.verticalCenter: parent.verticalCenter
                 text: root.service.osdKind === "brightness" ? "☀" : root.service.osdKind === "microphone" ? "●" : "♪"
                 color: theme.text
-                font.pixelSize: 20
+                font.pixelSize: Theme.fontTitle
             }
             Column {
-                width: parent.width - 42
+                width: parent.width - Theme.iconLarge - Theme.spacingMedium
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: theme.spacingSmall
-                Text {
+                ShellText {
+                    width: parent.width
+                    elide: Text.ElideRight
                     text: root.service.osdLabel + (root.service.osdMuted ? " muted" : "  " + Math.round(root.service.osdValue * 100) + "%")
                     color: theme.text
                     font.pixelSize: theme.fontSmall
                 }
                 Rectangle {
                     width: parent.width
-                    height: 6
-                    radius: 3
+                    height: Theme.sliderTrackHeight
+                    radius: height / 2
                     color: theme.depth
                     Rectangle {
                         width: root.service.osdMuted ? 0 : parent.width * root.service.osdValue

@@ -86,6 +86,31 @@ input feedback, toast lifetime, contextual geometry and configuration modes:
 dbus-run-session -- python3 tests/motion/check.py
 ```
 
+Phase 9 adds the static premium visual system in `shell/components/Theme.qml`.
+It owns semantic colors, type sizes/weights, spacing, radii, border/shadow
+levels, opacity and common dimensions. `ControlStyle` remains a compatibility
+facade; components share the same tokens. The palette uses dark slate glass,
+cool blue accents and restrained borders, with separate panel and card layers.
+
+`PanelSurface`, `PopupSurface` and `CardSurface` build on the Phase 8
+surfaces. `ShellText` supports display/title/body/label/caption roles;
+`SectionHeader`, `Separator`, `ShellSlider`, `ShellComboBox` and
+`PanelScrollArea` standardize recurring visuals and bounded content.
+Shadows use static geometry. Compositor blur remains limited to the bar,
+launcher and Control Center, guarded by `Theme.blurEnabled`; shadows are
+guarded by `Theme.shadowsEnabled`. No theme switching or customization UI
+is included. Semantic palette inputs are centralized for future providers.
+
+Run the existing core/media/notification/motion checks after visual changes.
+The design stress check uses safe fixtures for long and missing text/data:
+
+```sh
+dbus-run-session -- python3 tests/motion/check.py design
+```
+
+Set `VOID_MOTION_CAPTURE_DIR` to an existing writable directory when running
+the motion checker to capture all major panels for visual review.
+
 ## Dependencies
 
 Install these Arch packages (an AUR helper may be needed for Quickshell):

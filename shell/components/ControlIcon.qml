@@ -3,9 +3,9 @@ import QtQuick
 Canvas {
     id: root
     property string name: "wifi"
-    property color ink: "white"
-    implicitWidth: 24
-    implicitHeight: 24
+    property color ink: Theme.textPrimary
+    implicitWidth: Theme.iconLarge
+    implicitHeight: Theme.iconLarge
     onNameChanged: requestPaint()
     onInkChanged: requestPaint()
     onWidthChanged: requestPaint()
