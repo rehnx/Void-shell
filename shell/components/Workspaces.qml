@@ -23,7 +23,14 @@ RowLayout {
             implicitHeight: 22
             radius: 11
             color: workspace && workspace.focused ? palette.text : "#158edbff"
-            Behavior on color { ColorAnimation { duration: palette.duration } }
+            Behavior on color { MotionColorAnimation {} }
+            scale: interaction.feedbackScale
+            transform: Translate { y: interaction.lift }
+            InteractionMotion {
+                id: interaction
+                hovered: pointer.containsMouse
+                pressed: pointer.pressed
+            }
 
             Text {
                 anchors.centerIn: parent
@@ -33,6 +40,8 @@ RowLayout {
             }
 
             MouseArea {
+                id: pointer
+                hoverEnabled: true
                 anchors.fill: parent
                 onClicked: Hyprland.dispatch("workspace " + workspaceButton.modelData)
             }

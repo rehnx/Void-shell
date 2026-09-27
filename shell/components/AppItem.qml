@@ -14,9 +14,19 @@ Rectangle {
     ControlStyle { id: style }
     implicitHeight: 56
     radius: 18
-    color: selected ? "#458edbff" : pointer.containsMouse ? "#228edbff" : "transparent"
-    border.color: selected ? style.border : "transparent"
-    Behavior on color { ColorAnimation { duration: style.duration } }
+    color: interaction.fill
+    border.color: selected ? style.border : interaction.outline
+    scale: interaction.feedbackScale
+    opacity: interaction.contentOpacity
+    transform: Translate { y: interaction.lift }
+    InteractionMotion {
+        id: interaction
+        hovered: pointer.containsMouse
+        pressed: pointer.pressed
+        focused: root.activeFocus
+        selected: root.selected
+        interactive: root.enabled
+    }
 
     RowLayout {
         anchors.fill: parent

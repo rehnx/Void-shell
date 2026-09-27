@@ -11,7 +11,14 @@ GlassSurface {
     signal adjusted(real value)
     implicitHeight: 100
     radius: 26
-    opacity: enabled ? 1 : 0.5
+    opacity: interaction.contentOpacity
+    InteractionMotion {
+        id: interaction
+        hovered: slider.hovered
+        pressed: slider.pressed
+        focused: slider.visualFocus
+        interactive: root.enabled
+    }
     ControlStyle { id: style }
     ColumnLayout {
         anchors.fill: parent
@@ -26,6 +33,7 @@ GlassSurface {
         }
         Slider {
             id: slider
+            hoverEnabled: true
             Layout.fillWidth: true
             from: root.minimum
             to: 1
@@ -47,6 +55,7 @@ GlassSurface {
                 y: slider.topPadding + (slider.availableHeight - height) / 2
                 width: 20; height: 20; radius: 10
                 color: style.text
+                scale: interaction.feedbackScale
                 border.width: slider.visualFocus ? 2 : 0
                 border.color: style.accent
             }

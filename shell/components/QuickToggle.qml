@@ -12,12 +12,22 @@ AbstractButton {
     implicitWidth: 160
     Accessible.name: title + ": " + status
     ControlStyle { id: style }
-    scale: down ? 0.97 : 1
-    Behavior on scale { NumberAnimation { duration: 120 } }
+    hoverEnabled: true
+    scale: interaction.feedbackScale
+    opacity: interaction.contentOpacity
+    transform: Translate { y: interaction.lift }
+    InteractionMotion {
+        id: interaction
+        hovered: root.hovered
+        pressed: root.down
+        focused: root.visualFocus
+        selected: root.active
+        interactive: root.enabled
+    }
     background: GlassSurface {
         radius: 26
         border.color: root.visualFocus ? style.accent : root.hovered ? "#7089b4fa" : style.border
-        opacity: root.enabled ? 1 : 0.5
+        Behavior on border.color { MotionColorAnimation {} }
     }
     contentItem: ColumnLayout {
         spacing: 6
@@ -25,7 +35,7 @@ AbstractButton {
         Rectangle {
             implicitWidth: 52; implicitHeight: 52; radius: 26
             color: root.active ? "#f4faff" : "#3096cee8"
-            Behavior on color { ColorAnimation { duration: style.duration } }
+            Behavior on color { MotionColorAnimation {} }
             ControlIcon {
                 anchors.centerIn: parent
                 width: 25; height: 25

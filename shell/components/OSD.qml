@@ -10,7 +10,7 @@ PanelWindow {
     required property var service
     ControlStyle { id: theme }
     screen: Quickshell.screens.find(screen => Hyprland.focusedMonitor && screen.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
-    visible: service.osdVisible || surface.opacity > 0
+    visible: surface.present
     color: "transparent"
     implicitWidth: 300
     implicitHeight: 76
@@ -20,14 +20,12 @@ PanelWindow {
     margins.bottom: 56
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
-    GlassSurface {
+    FloatingSurface {
         id: surface
+        shown: root.service.osdVisible
+        direction: 1
         anchors.fill: parent
         anchors.margins: theme.spacingSmall
-        opacity: root.service.osdVisible ? 1 : 0
-        scale: root.service.osdVisible ? 1 : 0.97
-        Behavior on opacity { NumberAnimation { duration: theme.duration } }
-        Behavior on scale { NumberAnimation { duration: theme.duration; easing.type: Easing.OutCubic } }
         Row {
             anchors.fill: parent
             anchors.margins: theme.spacingMedium
@@ -58,7 +56,7 @@ PanelWindow {
                         height: parent.height
                         radius: parent.radius
                         color: theme.accent
-                        Behavior on width { NumberAnimation { duration: theme.duration } }
+                        Behavior on width { MotionAnimation {} }
                     }
                 }
             }

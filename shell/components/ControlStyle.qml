@@ -10,7 +10,7 @@ QtObject {
     readonly property color border: "#55d9f2ff"
     readonly property color highlight: "#609bcee8"
     readonly property color depth: "#cc152c48"
-    readonly property int duration: 220
+    readonly property int duration: Motion.settle
     readonly property int radius: 28
     readonly property int radiusSmall: 12
     readonly property int spacingSmall: 8

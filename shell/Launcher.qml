@@ -7,6 +7,8 @@ import "components"
 
 PanelWindow {
     id: root
+    property bool opened: false
+    readonly property real reveal: launcherSurface.progress
     ControlStyle { id: style }
 
     readonly property var targetScreen: {
@@ -44,7 +46,7 @@ PanelWindow {
     property int selectedIndex: filteredApplications.length > 0 ? 0 : -1
 
     function closeLauncher() {
-        visible = false;
+        opened = false;
     }
 
     function launchSelected() {
@@ -66,17 +68,19 @@ PanelWindow {
     }
 
     function toggle() {
-        visible = !visible;
+        opened = !opened;
     }
 
     screen: targetScreen
-    visible: false
-    color: "#25081222"
-    BackgroundEffect.blurRegion: Region { item: launcherSurface; radius: 28 }
+    visible: launcherSurface.present
+    color: Qt.rgba(0.03, 0.07, 0.13, 0.145 * launcherSurface.progress)
+    BackgroundEffect.blurRegion: Region { x: launcherSurface.x; y: launcherSurface.y; width: launcherSurface.width; height: launcherSurface.height; radius: launcherSurface.radius }
     exclusiveZone: 0
+    // Release pointer input immediately while the exit remains on screen.
+    mask: Region { width: root.opened ? root.width : 0; height: root.opened ? root.height : 0 }
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.keyboardFocus: visible ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
+    WlrLayershell.keyboardFocus: opened ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
 
     anchors {
         top: true
@@ -92,14 +96,14 @@ PanelWindow {
         onPressed: root.toggle()
     }
 
-    onVisibleChanged: {
-        if (!visible)
+    onOpenedChanged: {
+        if (!opened)
             return;
 
         searchInput.text = "";
         selectedIndex = filteredApplications.length > 0 ? 0 : -1;
         Qt.callLater(function() {
-            searchInput.forceActiveFocus();
+            if (root.opened) searchInput.forceActiveFocus();
         });
     }
 
@@ -115,8 +119,10 @@ PanelWindow {
         onClicked: root.closeLauncher()
     }
 
-    GlassSurface {
+    FloatingSurface {
         id: launcherSurface
+        shown: root.opened
+        direction: 1
         width: Math.min(parent.width - 32, 600)
         height: Math.min(parent.height - 80, 520)
         anchors.centerIn: parent

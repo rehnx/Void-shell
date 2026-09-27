@@ -15,7 +15,7 @@ PanelWindow {
     id: root
     required property var systemService
     property bool opened: false
-    property real reveal: opened ? 1 : 0
+    readonly property real reveal: surface.progress
     property var requestedScreen: null
     readonly property var wifi: Networking.devices.values.find(device => device.type === DeviceType.Wifi) || null
     readonly property var network: wifi ? wifi.networks.values.find(network => network.connected) : null
@@ -30,15 +30,16 @@ PanelWindow {
     function close() { opened = false; }
 
     screen: requestedScreen || Quickshell.screens.find(screen => Hyprland.focusedMonitor && screen.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
-    visible: opened || reveal > 0
+    visible: surface.present
     color: "transparent"
     exclusiveZone: 0
+    // Release pointer input immediately while the exit remains on screen.
+    mask: Region { width: root.opened ? root.width : 0; height: root.opened ? root.height : 0 }
     exclusionMode: ExclusionMode.Ignore
     WlrLayershell.layer: WlrLayer.Overlay
-    BackgroundEffect.blurRegion: Region { item: panel; radius: 28 }
+    BackgroundEffect.blurRegion: Region { x: surface.x; y: surface.y; width: surface.width; height: surface.height; radius: surface.radius }
     WlrLayershell.keyboardFocus: opened ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
     anchors { top: true; bottom: true; left: true; right: true }
-    Behavior on reveal { NumberAnimation { duration: style.duration; easing.type: Easing.OutCubic } }
     onOpenedChanged: {
         if (opened) {
             systemService.refreshBrightness();
@@ -58,14 +59,13 @@ PanelWindow {
         id: content
         anchors.fill: parent
         Keys.onEscapePressed: root.close()
-        GlassSurface {
-            id: panel
+        FloatingSurface {
+            id: surface
+            shown: root.opened
             width: Math.min(380, parent.width - 32)
             height: Math.min(body.implicitHeight + 40, parent.height - 64)
             x: parent.width - width - 16
-            y: 60 - 12 * (1 - root.reveal)
-            opacity: root.reveal
-            scale: 0.97 + 0.03 * root.reveal
+            y: 60
             transformOrigin: Item.TopRight
             radius: 28
             elevated: true
@@ -88,13 +88,12 @@ PanelWindow {
                             Text { text: "VOID SHELL"; color: style.secondary; font.pixelSize: 10; font.letterSpacing: 2 }
                         }
                         Item { Layout.fillWidth: true }
-                        ToolButton {
+                        ShellButton {
                             id: closeButton
                             text: "×"
                             Accessible.name: "Close Control Center"
                             onClicked: root.close()
                             contentItem: Text { text: "×"; color: style.secondary; font.pixelSize: 25; horizontalAlignment: Text.AlignHCenter }
-                            background: Rectangle { radius: 16; color: closeButton.hovered ? style.tile : "transparent" }
                         }
                     }
                     RowLayout {

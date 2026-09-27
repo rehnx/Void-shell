@@ -58,7 +58,7 @@ ShellRoot {
 
     Launcher {
         id: launcher
-        onVisibleChanged: if (visible) {
+        onOpenedChanged: if (opened) {
             root.closeOtherPanels("launcher");
         }
     }

@@ -4,6 +4,7 @@ import Quickshell
 import Quickshell.Io
 import "services"
 import "panels"
+import "components"
 
 ShellRoot {
     NotificationService { id: service }
@@ -20,12 +21,13 @@ ShellRoot {
         function dismiss(id: int): void { service.dismiss(id); }
         function clear(): void { service.clearAll(); }
         function toastOpacity(): real {
-            function find(item) {
-                if (item.entry && typeof item.dismissed === "function") return item.opacity;
-                for (const child of item.children || []) { const result = find(child); if (result >= 0) return result; }
+            function find(item, inheritedOpacity) {
+                const effectiveOpacity = inheritedOpacity * item.opacity;
+                if (item.entry && typeof item.dismissed === "function") return effectiveOpacity;
+                for (const child of item.children || []) { const result = find(child, effectiveOpacity); if (result >= 0) return result; }
                 return -1;
             }
-            return find(toasts.contentItem);
+            return find(toasts.contentItem, 1);
         }
         function dismissCard(toast: bool): string {
             function find(item) {
@@ -34,7 +36,7 @@ ShellRoot {
                 return null;
             }
             center.opened = !toast;
-            input.wait(100);
+            input.wait(Math.max(Motion.enter, Motion.exit) + 100);
             const card = find(toast ? toasts.contentItem : center.contentItem);
             if (!card) return "Card missing";
             const previous = service.count;
@@ -60,6 +62,7 @@ ShellRoot {
             input.mouseClick(center.contentItem, center.width - 200, 100);
             if (!center.opened) return "Inside click failed";
             center.opened = false;
+            input.wait(Motion.exit + 100);
             return "passed";
         }
         function buttons(): string {

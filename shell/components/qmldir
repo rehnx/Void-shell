@@ -1,0 +1,27 @@
+singleton Motion 1.0 Motion.qml
+ActiveWindow 1.0 ActiveWindow.qml
+AnimatedVisibility 1.0 AnimatedVisibility.qml
+AppItem 1.0 AppItem.qml
+BatteryStatus 1.0 BatteryStatus.qml
+BrightnessControl 1.0 BrightnessControl.qml
+Clock 1.0 Clock.qml
+ContextualSurface 1.0 ContextualSurface.qml
+ControlIcon 1.0 ControlIcon.qml
+ControlSlider 1.0 ControlSlider.qml
+ControlStyle 1.0 ControlStyle.qml
+FloatingSurface 1.0 FloatingSurface.qml
+GlassSurface 1.0 GlassSurface.qml
+InteractionMotion 1.0 InteractionMotion.qml
+MediaArtwork 1.0 MediaArtwork.qml
+MediaControls 1.0 MediaControls.qml
+MotionAnimation 1.0 MotionAnimation.qml
+MotionColorAnimation 1.0 MotionColorAnimation.qml
+MotionState 1.0 MotionState.qml
+NotificationCard 1.0 NotificationCard.qml
+OSD 1.0 OSD.qml
+QuickToggle 1.0 QuickToggle.qml
+ShellButton 1.0 ShellButton.qml
+Tray 1.0 Tray.qml
+VolumeStatus 1.0 VolumeStatus.qml
+WifiStatus 1.0 WifiStatus.qml
+Workspaces 1.0 Workspaces.qml

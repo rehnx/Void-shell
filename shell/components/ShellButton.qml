@@ -8,16 +8,28 @@ AbstractButton {
     implicitHeight: 32
     implicitWidth: contentItem.implicitWidth + padding * 2
     Accessible.name: text
+    hoverEnabled: true
+    property bool selected: false
+    scale: interaction.feedbackScale
+    opacity: interaction.contentOpacity
+    transform: Translate { y: interaction.lift }
+    InteractionMotion {
+        id: interaction
+        hovered: root.hovered
+        pressed: root.down
+        focused: root.visualFocus
+        selected: root.selected
+        interactive: root.enabled
+    }
     background: Rectangle {
         radius: theme.radiusSmall
-        color: root.down ? theme.highlight : root.hovered ? theme.tile : "transparent"
-        border.color: root.visualFocus ? theme.accent : "transparent"
+        color: interaction.fill
+        border.color: interaction.outline
     }
     contentItem: Text {
         text: root.text
         textFormat: Text.PlainText
         color: root.enabled ? theme.text : theme.secondary
-        opacity: root.enabled ? 1 : 0.5
         font.pixelSize: theme.fontSmall
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter

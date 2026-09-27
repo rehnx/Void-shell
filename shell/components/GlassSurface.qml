@@ -3,6 +3,7 @@ import QtQuick
 Rectangle {
     id: root
     property bool elevated: false
+    property real elevation: 1
     ControlStyle { id: style }
     radius: style.radius
     color: style.surface
@@ -22,6 +23,7 @@ Rectangle {
     }
     Rectangle {
         visible: root.elevated
+        opacity: root.elevation
         anchors.fill: parent
         anchors.margins: -4
         z: -1

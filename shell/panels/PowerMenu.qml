@@ -14,7 +14,10 @@ PanelWindow {
     property bool opened: false
     property string shortcutAppId: "quickshell"
     property string pendingAction: ""
-    property real reveal: opened ? 1 : 0
+    // Preserve the closing frame after the logical action is cleared.
+    property string displayedAction: ""
+    onPendingActionChanged: if (opened) displayedAction = pendingAction
+    readonly property real reveal: surface.progress
     readonly property var actions: [
         { name: "lock", label: "Lock", confirm: false },
         { name: "suspend", label: "Suspend", confirm: false },
@@ -47,27 +50,32 @@ PanelWindow {
     }
 
     screen: requestedScreen || Quickshell.screens.find(screen => Hyprland.focusedMonitor && screen.name === Hyprland.focusedMonitor.name) || Quickshell.screens[0]
-    visible: opened || reveal > 0
-    color: "#25000000"
+    visible: surface.present
+    color: Qt.rgba(0, 0, 0, 0.145 * surface.progress)
     exclusiveZone: 0
+    // Release pointer input immediately while the exit remains on screen.
+    mask: Region { width: root.opened ? root.width : 0; height: root.opened ? root.height : 0 }
     exclusionMode: ExclusionMode.Ignore
     anchors { top: true; bottom: true; left: true; right: true }
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: opened ? WlrKeyboardFocus.Exclusive : WlrKeyboardFocus.None
-    Behavior on reveal { NumberAnimation { duration: theme.duration; easing.type: Easing.OutCubic } }
-    onOpenedChanged: if (opened) Qt.callLater(() => focusRoot.forceActiveFocus())
+    onOpenedChanged: if (opened) {
+        displayedAction = pendingAction;
+        Qt.callLater(() => { if (root.opened) focusRoot.forceActiveFocus(); });
+    }
     GlobalShortcut { appid: root.shortcutAppId; name: "powerMenu"; onPressed: root.toggle(null) }
     MouseArea { anchors.fill: parent; onClicked: root.close() }
     FocusScope {
         id: focusRoot
         anchors.fill: parent
         Keys.onEscapePressed: root.close()
-        GlassSurface {
+        FloatingSurface {
+            id: surface
+            shown: root.opened
+            animateGeometry: true
             width: Math.min(390, parent.width - theme.spacingMedium * 2)
             height: content.implicitHeight + theme.spacingMedium * 2
             anchors.centerIn: parent
-            opacity: root.reveal
-            scale: 0.98 + 0.02 * root.reveal
             elevated: true
             MouseArea { anchors.fill: parent; onClicked: mouse => mouse.accepted = true }
             ColumnLayout {
@@ -79,14 +87,14 @@ PanelWindow {
                 spacing: theme.spacingMedium
                 Text {
                     Layout.fillWidth: true
-                    text: root.pendingAction ? "Confirm " + root.pendingAction : "Power"
+                    text: root.displayedAction ? "Confirm " + root.displayedAction : "Power"
                     color: theme.text
                     font.pixelSize: theme.fontHeading
                     horizontalAlignment: Text.AlignHCenter
                 }
                 ColumnLayout {
                     Layout.fillWidth: true
-                    visible: !root.pendingAction
+                    visible: !root.displayedAction
                     Repeater {
                         model: root.actions
                         ShellButton {
@@ -99,7 +107,7 @@ PanelWindow {
                 }
                 Text {
                     Layout.fillWidth: true
-                    visible: !!root.pendingAction
+                    visible: !!root.displayedAction
                     text: "This will end the current session or interrupt running work."
                     wrapMode: Text.Wrap
                     color: theme.secondary
@@ -108,7 +116,7 @@ PanelWindow {
                 }
                 RowLayout {
                     Layout.fillWidth: true
-                    visible: !!root.pendingAction
+                    visible: !!root.displayedAction
                     ShellButton { Layout.fillWidth: true; text: "Cancel"; onClicked: root.pendingAction = "" }
                     ShellButton { Layout.fillWidth: true; text: "Confirm"; onClicked: root.confirm() }
                 }

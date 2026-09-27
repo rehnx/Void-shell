@@ -61,6 +61,31 @@ The core utility integration check disables execution of all power commands:
 dbus-run-session -- python3 tests/core/check.py
 ```
 
+Phase 8 centralizes surface and interaction motion in `shell/components/Motion.qml`.
+Set `VOID_MOTION_LEVEL=fast|normal|slow` before starting Quickshell to select
+timing, `VOID_REDUCED_MOTION=1` for immediate transitions without transforms,
+or `VOID_MOTION=off` to disable motion. The singleton exposes the same writable
+settings for future configuration integration; no settings UI is added.
+
+`FloatingSurface` combines the existing glass with fade, scale, slide and
+elevation. Bind the containing window's visibility to its `present` property
+and its input/focus to the logical open state. `AnimatedVisibility` provides
+the same lifecycle for other content. `InteractionMotion` supplies shared
+hover, press/release, focus, selected and disabled feedback without owning input.
+All transitions settle and stop; no motion timers or animated blur are used.
+
+`ContextualSurface` interpolates compact/expanded rectangles in one parent
+coordinate space. Use it for locally owned popup/card geometry; do not put
+its animated geometry under a Layout or force morphs between separate windows.
+`FloatingSurface.animateGeometry` is opt-in (used for power confirmation sizing).
+
+Motion regression checks exercise actual panels, interrupted transitions,
+input feedback, toast lifetime, contextual geometry and configuration modes:
+
+```sh
+dbus-run-session -- python3 tests/motion/check.py
+```
+
 ## Dependencies
 
 Install these Arch packages (an AUR helper may be needed for Quickshell):

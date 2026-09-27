@@ -88,24 +88,15 @@ PanelWindow {
 
         ShellButton { text: "Power"; onClicked: root.powerRequested() }
 
-        Rectangle {
+        ShellButton {
             implicitWidth: 34
             implicitHeight: 28
-            radius: 14
-            color: controlPointer.containsMouse ? "#508edbff" : "#258edbff"
-            border.color: style.border
-            ControlIcon {
-                anchors.centerIn: parent
+            Accessible.name: "Open Control Center"
+            onClicked: root.controlCenterRequested()
+            contentItem: ControlIcon {
                 name: "controls"
                 width: 18; height: 18
                 ink: style.text
-            }
-            MouseArea {
-                id: controlPointer
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.controlCenterRequested()
             }
         }
     }
