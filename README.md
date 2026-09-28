@@ -111,6 +111,28 @@ dbus-run-session -- python3 tests/motion/check.py design
 Set `VOID_MOTION_CAPTURE_DIR` to an existing writable directory when running
 the motion checker to capture all major panels for visual review.
 
+Phase 10 adds runtime palettes through `shell/theme/ThemeManager.qml` while
+keeping the Phase 9 `Theme` singleton as the only token source used by UI
+components. Built-in IDs are `void-dark`, `void-light`, `amoled`, and
+`warm-glass`; `dynamic` derives a guarded dark palette from a wallpaper using
+Quickshell's asynchronous color quantizer. Set `VOID_WALLPAPER` to an image
+path, or let the manager make one startup-time attempt to detect hyprpaper,
+swww, or swaybg. Missing and invalid images retain a readable fallback.
+
+The selected theme is stored atomically in Quickshell's state directory and is
+restored at startup. Runtime control is available without restarting the shell:
+
+```sh
+qs ipc call theme list
+qs ipc call theme setTheme void-light
+qs ipc call theme setWallpaper /absolute/path/to/wallpaper.png
+qs ipc call theme setTheme dynamic
+```
+
+`VOID_THEME` overrides the restored selection for a session. Theme extraction
+runs only when dynamic mode is selected or explicitly refreshed. Validate the
+engine with `dbus-run-session -- python3 tests/theme/check.py`.
+
 ## Dependencies
 
 Install these Arch packages (an AUR helper may be needed for Quickshell):

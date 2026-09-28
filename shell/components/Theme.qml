@@ -2,8 +2,11 @@ pragma Singleton
 import QtQuick
 
 QtObject {
-    // Semantic inputs: a single seam for future theme/customization providers.
-    // Phase 9 deliberately supplies one static palette and no settings UI.
+    // Runtime semantic tokens. ThemeManager is the only writer; UI components
+    // continue consuming this singleton and never select palettes themselves.
+    property string name: "Void Dark"
+    property bool dark: true
+    property color background: "#151b25"
     property color surface: "#df202735"
     property color surfaceElevated: "#ed283243"
     property color surfaceBottom: "#ef1c2330"
@@ -14,6 +17,7 @@ QtObject {
     property color textSecondary: "#b5c1d2"
     property color textMuted: "#8f9eb4"
     property color accent: "#a4ccfa"
+    property color secondary: "#8faed2"
     property color textOnAccent: "#17283e"
     property color hover: "#183fa8ff"
     property color pressed: "#354faaff"
@@ -27,6 +31,37 @@ QtObject {
     property color scrim: "#101823"
     property bool shadowsEnabled: true
     property bool blurEnabled: true
+
+    function applyPalette(palette) {
+        if (!palette) return;
+        name = palette.name;
+        dark = palette.dark;
+        background = palette.background;
+        surface = palette.surface;
+        surfaceElevated = palette.surfaceElevated;
+        surfaceBottom = palette.surfaceBottom;
+        surfaceCard = palette.surfaceCard;
+        surfaceCardBottom = palette.surfaceCardBottom;
+        surfaceInset = palette.surfaceInset;
+        textPrimary = palette.textPrimary;
+        textSecondary = palette.textSecondary;
+        textMuted = palette.textMuted;
+        accent = palette.accent;
+        secondary = palette.secondary;
+        textOnAccent = palette.textOnAccent;
+        hover = palette.hover;
+        pressed = palette.pressed;
+        selected = palette.selected;
+        border = palette.border;
+        borderStrong = palette.borderStrong;
+        innerBorder = palette.innerBorder;
+        separator = palette.separator;
+        shadowNear = palette.shadowNear;
+        shadowFar = palette.shadowFar;
+        scrim = palette.scrim;
+        shadowsEnabled = palette.shadowsEnabled;
+        blurEnabled = palette.blurEnabled;
+    }
 
     readonly property real scrimOpacity: 0.18
     readonly property real disabledOpacity: 0.5

@@ -7,6 +7,7 @@ state_home=${XDG_STATE_HOME:-"$HOME/.local/state"}
 hypr_dir="$config_home/hypr"
 shell_dir="$config_home/rehanshell/shell"
 component_dir="$shell_dir/components"
+theme_dir="$shell_dir/theme"
 backup_dir="$state_home/rehanshell/backups/$(date +%Y%m%d-%H%M%S-%N)"
 backup_created=false
 
@@ -35,6 +36,7 @@ install_managed_file() {
 }
 
 mkdir -p -- "$hypr_dir" "$component_dir"
+mkdir -p -- "$theme_dir/palettes"
 
 install_managed_file "$project_dir/hypr/hyprland.conf" "$hypr_dir/hyprland.conf"
 install_managed_file "$project_dir/hypr/keybinds.conf" "$hypr_dir/keybinds.conf"
@@ -47,6 +49,10 @@ for component in ControlStyle GlassSurface ControlIcon QuickToggle ControlSlider
     install_managed_file "$project_dir/shell/components/$component.qml" "$component_dir/$component.qml"
 done
 install_managed_file "$project_dir/shell/components/qmldir" "$component_dir/qmldir"
+install_managed_file "$project_dir/shell/theme/ThemeManager.qml" "$theme_dir/ThemeManager.qml"
+for palette in VoidDark VoidLight Amoled WarmGlass DynamicPalette; do
+    install_managed_file "$project_dir/shell/theme/palettes/$palette.qml" "$theme_dir/palettes/$palette.qml"
+done
 install_managed_file "$project_dir/shell/services/NotificationService.qml" "$shell_dir/services/NotificationService.qml"
 install_managed_file "$project_dir/shell/services/MediaService.qml" "$shell_dir/services/MediaService.qml"
 install_managed_file "$project_dir/shell/services/SystemService.qml" "$shell_dir/services/SystemService.qml"
@@ -76,4 +82,4 @@ if [[ $backup_created == true ]]; then
     printf 'Backed up replaced files to %s\n' "$backup_dir"
 fi
 
-printf 'RehanShell Phase 9 installation complete.\n'
+printf 'RehanShell Phase 10 installation complete.\n'

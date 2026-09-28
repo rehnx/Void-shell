@@ -29,7 +29,7 @@ with tempfile.TemporaryFile(mode="w+") as log:
                 if shell.poll() is not None or time.monotonic() > deadline:
                     raise
                 time.sleep(0.1)
-        checks = tuple(sys.argv[1:]) or ("panels", "interactions", "contextual", "toasts", "configuration")
+        checks = tuple(sys.argv[1:]) or ("panels", "interactions", "contextual", "toasts", "configuration", "themes")
         if os.environ.get("VOID_MOTION_CAPTURE_DIR"):
             checks += ("visual",)
         for name in checks:

@@ -8,9 +8,11 @@ import Quickshell.Wayland
 import "components"
 import "panels"
 import "services"
+import "theme"
 
 ShellRoot {
     id: root
+    ThemeManager { id: themeManager; persistenceEnabled: false }
     SystemService { id: system; actionsEnabled: false; shortcutAppId: "void-motion-test" }
     MediaService { id: media }
     NotificationService { id: notifications }
@@ -495,6 +497,30 @@ ShellRoot {
         bar.visible = false;
         return "passed";
     }
+    function themeChecks() {
+        const expectedNames = ["Void Dark", "Void Light", "AMOLED", "Warm Glass"];
+        const ids = ["void-dark", "void-light", "amoled", "warm-glass"];
+        const seenSurfaces = [];
+        for (let index = 0; index < ids.length; index++) {
+            expect(themeManager.setTheme(ids[index], false), "Theme switch failed: " + ids[index]);
+            settled();
+            expect(Theme.name === expectedNames[index], "Theme name did not propagate");
+            expect(themeManager.contrast(Theme.textPrimary, Theme.background) >= 7, "Primary contrast unsafe");
+            expect(themeManager.contrast(Theme.textSecondary, Theme.background) >= 4.5, "Secondary contrast unsafe");
+            expect(themeManager.contrast(Theme.textOnAccent, Theme.accent) >= 4.5, "Accent contrast unsafe");
+            expect(!seenSurfaces.includes(String(Theme.surface)), "Theme surface did not change");
+            seenSurfaces.push(String(Theme.surface));
+            launcher.opened = true;
+            settled();
+            checkText(launcher.contentItem);
+            if (Quickshell.env("VOID_MOTION_CAPTURE_DIR"))
+                input.grabImage(launcher.contentItem).save(Quickshell.env("VOID_MOTION_CAPTURE_DIR") + "/theme-" + ids[index] + ".png");
+            launcher.closeLauncher();
+            settled();
+        }
+        themeManager.setTheme("void-dark", false);
+        return "passed";
+    }
     IpcHandler {
         target: "motionTest"
         function ready(): string { return "ready"; }
@@ -507,6 +533,7 @@ ShellRoot {
                 if (name === "configuration") return root.configurationChecks();
                 if (name === "visual") return root.visualChecks();
                 if (name === "design") return root.designChecks();
+                if (name === "themes") return root.themeChecks();
                 return "Unknown check";
             } catch (error) { return String(error); }
         }

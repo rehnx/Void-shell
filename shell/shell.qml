@@ -5,9 +5,11 @@ import Quickshell
 import "components"
 import "services"
 import "panels"
+import "theme"
 
 ShellRoot {
     id: root
+    ThemeManager { id: themeManager }
     SystemService { id: system }
     OSD { service: system }
     CalendarPanel {
