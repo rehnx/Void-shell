@@ -1,5 +1,6 @@
 pragma Singleton
 import QtQuick
+import "../services"
 
 QtObject {
     // Runtime semantic tokens. ThemeManager is the only writer; UI components
@@ -7,12 +8,18 @@ QtObject {
     property string name: "Void Dark"
     property bool dark: true
     property color background: "#151b25"
-    property color surface: "#df202735"
-    property color surfaceElevated: "#ed283243"
-    property color surfaceBottom: "#ef1c2330"
-    property color surfaceCard: "#80333e50"
-    property color surfaceCardBottom: "#602b3546"
-    property color surfaceInset: "#90202a39"
+    property color paletteSurface: "#df202735"
+    property color paletteSurfaceElevated: "#ed283243"
+    property color paletteSurfaceBottom: "#ef1c2330"
+    property color paletteSurfaceCard: "#80333e50"
+    property color paletteSurfaceCardBottom: "#602b3546"
+    property color paletteSurfaceInset: "#90202a39"
+    readonly property color surface: transparentSurface(paletteSurface)
+    readonly property color surfaceElevated: transparentSurface(paletteSurfaceElevated)
+    readonly property color surfaceBottom: transparentSurface(paletteSurfaceBottom)
+    readonly property color surfaceCard: transparentSurface(paletteSurfaceCard)
+    readonly property color surfaceCardBottom: transparentSurface(paletteSurfaceCardBottom)
+    readonly property color surfaceInset: transparentSurface(paletteSurfaceInset)
     property color textPrimary: "#f0f4fa"
     property color textSecondary: "#b5c1d2"
     property color textMuted: "#8f9eb4"
@@ -30,19 +37,36 @@ QtObject {
     property color shadowFar: "#10050810"
     property color scrim: "#101823"
     property bool shadowsEnabled: true
-    property bool blurEnabled: true
+    property bool paletteBlurEnabled: true
+    readonly property bool blurEnabled: paletteBlurEnabled && Settings.blurStrength > 0
+    readonly property real densityScale: Settings.density * (Settings.layoutMode === "compact" ? 0.85 : 1)
+    readonly property bool barAtBottom: Settings.barPosition === "bottom"
+    readonly property int panelDirection: barAtBottom ? 1 : -1
+
+    // 0 = opaque, 1 = the palette's original glass alpha. Text never fades.
+    function transparentSurface(color) {
+        return Qt.rgba(color.r, color.g, color.b, 1 - (1 - color.a) * Settings.transparency);
+    }
+    function spacing(value) { return Math.max(1, Math.round(value * densityScale)); }
+    function dimension(value) { return Math.round(value * Math.max(1, Settings.fontScale, densityScale)); }
+    function controlHeight(value) {
+        return Math.round(value * Math.max(densityScale, Settings.fontScale * 0.75));
+    }
+    function panelY(availableHeight, height) {
+        return barAtBottom ? Math.max(spacingMedium, availableHeight - height - panelTop) : panelTop;
+    }
 
     function applyPalette(palette) {
         if (!palette) return;
         name = palette.name;
         dark = palette.dark;
         background = palette.background;
-        surface = palette.surface;
-        surfaceElevated = palette.surfaceElevated;
-        surfaceBottom = palette.surfaceBottom;
-        surfaceCard = palette.surfaceCard;
-        surfaceCardBottom = palette.surfaceCardBottom;
-        surfaceInset = palette.surfaceInset;
+        paletteSurface = palette.surface;
+        paletteSurfaceElevated = palette.surfaceElevated;
+        paletteSurfaceBottom = palette.surfaceBottom;
+        paletteSurfaceCard = palette.surfaceCard;
+        paletteSurfaceCardBottom = palette.surfaceCardBottom;
+        paletteSurfaceInset = palette.surfaceInset;
         textPrimary = palette.textPrimary;
         textSecondary = palette.textSecondary;
         textMuted = palette.textMuted;
@@ -60,7 +84,7 @@ QtObject {
         shadowFar = palette.shadowFar;
         scrim = palette.scrim;
         shadowsEnabled = palette.shadowsEnabled;
-        blurEnabled = palette.blurEnabled;
+        paletteBlurEnabled = palette.blurEnabled;
     }
 
     readonly property real scrimOpacity: 0.18
@@ -74,33 +98,33 @@ QtObject {
     readonly property int elevationNone: 0
     readonly property int elevationCard: 1
     readonly property int elevationPanel: 2
-    readonly property int radiusSmall: 10
-    readonly property int radiusMedium: 18
-    readonly property int radiusLarge: 28
+    readonly property int radiusSmall: Math.round(Settings.cornerRadius * 10 / 28)
+    readonly property int radiusMedium: Math.round(Settings.cornerRadius * 18 / 28)
+    readonly property int radiusLarge: Settings.cornerRadius
     readonly property int radiusPill: 999
-    readonly property int spacingTiny: 4
-    readonly property int spacingSmall: 8
-    readonly property int spacingCompact: 12
-    readonly property int spacingMedium: 16
-    readonly property int spacingLarge: 24
-    readonly property int spacingXLarge: 32
-    readonly property int panelPadding: 24
-    readonly property int cardPadding: 16
-    readonly property int panelWidth: 420
-    readonly property int panelCompactWidth: 400
-    readonly property int panelHeight: 600
-    readonly property int panelTop: 64
-    readonly property int launcherWidth: 620
-    readonly property int launcherHeight: 540
-    readonly property int barHeight: 48
+    readonly property int spacingTiny: spacing(4)
+    readonly property int spacingSmall: spacing(8)
+    readonly property int spacingCompact: spacing(12)
+    readonly property int spacingMedium: spacing(16)
+    readonly property int spacingLarge: spacing(24)
+    readonly property int spacingXLarge: spacing(32)
+    readonly property int panelPadding: spacingLarge
+    readonly property int cardPadding: spacingMedium
+    readonly property int panelWidth: dimension(420)
+    readonly property int panelCompactWidth: dimension(400)
+    readonly property int panelHeight: dimension(600)
+    readonly property int panelTop: barHeight + spacingMedium
+    readonly property int launcherWidth: dimension(620)
+    readonly property int launcherHeight: dimension(540)
+    readonly property int barHeight: Math.max(controlHeight(48), buttonHeight + spacingSmall + barInset * 2)
     readonly property int barInset: 4
-    readonly property int buttonHeight: 32
-    readonly property int inputHeight: 44
-    readonly property int appRowHeight: 56
-    readonly property int toggleHeight: 140
-    readonly property int toggleWidth: 160
+    readonly property int buttonHeight: Math.max(controlHeight(32), Math.ceil(fontLabel * lineHeight) + spacingSmall * 2)
+    readonly property int inputHeight: Math.max(controlHeight(44), fontBody * 2)
+    readonly property int appRowHeight: controlHeight(56)
+    readonly property int toggleHeight: dimension(140)
+    readonly property int toggleWidth: dimension(160)
     readonly property int toggleIconSize: 44
-    readonly property int sliderCardHeight: 96
+    readonly property int sliderCardHeight: dimension(96)
     readonly property int sliderTrackHeight: 6
     readonly property int sliderHandleSize: 18
     readonly property int iconSmall: 16
@@ -109,23 +133,23 @@ QtObject {
     readonly property int iconApplication: 32
     readonly property int artworkSize: 88
     readonly property int artworkCompactSize: 28
-    readonly property int workspaceWidth: 28
-    readonly property int workspaceHeight: 24
-    readonly property int calendarCellHeight: 36
-    readonly property int mediaWidgetWidth: 240
-    readonly property int mediaWidgetMinimum: 128
-    readonly property int statusMaximumWidth: 160
-    readonly property int activeWindowMaximumWidth: 320
-    readonly property int osdWidth: 320
-    readonly property int osdHeight: 88
-    readonly property int osdBottom: 56
+    readonly property int workspaceWidth: dimension(28)
+    readonly property int workspaceHeight: controlHeight(24)
+    readonly property int calendarCellHeight: controlHeight(36)
+    readonly property int mediaWidgetWidth: dimension(240)
+    readonly property int mediaWidgetMinimum: dimension(128)
+    readonly property int statusMaximumWidth: dimension(160)
+    readonly property int activeWindowMaximumWidth: dimension(320)
+    readonly property int osdWidth: dimension(320)
+    readonly property int osdHeight: dimension(88)
+    readonly property int osdBottom: Math.max(56, barAtBottom ? panelTop : spacingLarge)
 
-    property string fontFamily: "Sans Serif"
-    readonly property int fontDisplay: 26
-    readonly property int fontTitle: 21
-    readonly property int fontBody: 14
-    readonly property int fontLabel: 13
-    readonly property int fontCaption: 12
+    property string fontFamily: Settings.fontFamily
+    readonly property int fontDisplay: Math.round(26 * Settings.fontScale)
+    readonly property int fontTitle: Math.round(21 * Settings.fontScale)
+    readonly property int fontBody: Math.round(14 * Settings.fontScale)
+    readonly property int fontLabel: Math.round(13 * Settings.fontScale)
+    readonly property int fontCaption: Math.round(12 * Settings.fontScale)
     readonly property int weightRegular: Font.Normal
     readonly property int weightLabel: Font.Medium
     readonly property int weightTitle: Font.DemiBold

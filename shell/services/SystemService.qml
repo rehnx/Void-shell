@@ -41,6 +41,7 @@ Item {
     signal powerActionRequested(string action)
 
     function showOsd(kind, label, value, muted) {
+        if (!Settings.osdEnabled) return;
         osdKind = kind;
         osdLabel = label;
         osdValue = Math.max(0, Math.min(value, 1));
@@ -148,6 +149,15 @@ Item {
 
     PwObjectTracker { objects: [root.sink, root.source].filter(object => !!object) }
 
+    Connections {
+        target: Settings
+        function onOsdEnabledChanged() {
+            if (!Settings.osdEnabled) {
+                osdTimeout.stop();
+                root.osdVisible = false;
+            }
+        }
+    }
     Timer { id: osdTimeout; interval: 1500; onTriggered: root.osdVisible = false }
     Timer { interval: 1000; running: true; onTriggered: root.refreshStats() }
     Timer { interval: 5000; repeat: true; running: true; onTriggered: root.refreshStats() }

@@ -2,21 +2,19 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import "../components"
+import "../services"
 import "palettes"
 
 Item {
     id: root
 
-    readonly property var availableThemes: ["void-dark", "void-light", "amoled", "warm-glass", "dynamic"]
+    readonly property var availableThemes: Settings.availableThemes
     property string selectedTheme: "void-dark"
     property string wallpaperPath: ""
     property string dynamicStatus: "idle"
-    property bool ready: false
+    readonly property bool ready: !persistenceEnabled || Settings.ready
     property bool persistenceEnabled: true
-    property string statePath: Quickshell.env("VOID_THEME_STATE") || Quickshell.statePath("theme.json")
     property string pendingWallpaper: ""
-    property string pendingState: ""
-    readonly property string explicitTheme: Quickshell.env("VOID_THEME")
     readonly property string explicitWallpaper: Quickshell.env("VOID_WALLPAPER")
 
     signal themeChanged(string theme)
@@ -28,12 +26,7 @@ Item {
     DynamicPalette { id: dynamicPalette }
 
     function normalizeTheme(name) {
-        const value = String(name || "").trim().toLowerCase().replace(/[_ ]/g, "-");
-        if (value === "voiddark" || value === "dark") return "void-dark";
-        if (value === "voidlight" || value === "light") return "void-light";
-        if (value === "warmglass" || value === "warm") return "warm-glass";
-        if (value === "wallpaper" || value === "wallpaper-dynamic") return "dynamic";
-        return availableThemes.includes(value) ? value : "";
+        return Settings.normalizeTheme(name);
     }
 
     function paletteFor(name) {
@@ -52,32 +45,22 @@ Item {
     function setTheme(name, persist) {
         const normalized = normalizeTheme(name);
         if (!normalized) return false;
+        if (persistenceEnabled && (persist === undefined || persist))
+            return Settings.setValue("theme", normalized);
         selectedTheme = normalized;
         apply(normalized);
         if (normalized === "dynamic" && dynamicStatus !== "ready") refreshWallpaper();
-        if (persist === undefined || persist) save();
         return true;
     }
 
-    function save() {
-        if (!persistenceEnabled || !ready || !statePath) return;
-        pendingState = JSON.stringify({ version: 1, theme: selectedTheme }) + "\n";
-        stateCommit.restart();
-    }
-
-    function restore(raw) {
-        let restored = "";
-        try {
-            const data = JSON.parse(raw || "{}");
-            restored = normalizeTheme(data.theme);
-        } catch (error) {
-            restored = "";
+    Connections {
+        target: Settings
+        function onThemeChanged() {
+            if (root.persistenceEnabled && Settings.ready) root.setTheme(Settings.theme, false);
         }
-        const requested = normalizeTheme(explicitTheme) || restored || "void-dark";
-        ready = true;
-        setTheme(requested, false);
-        // Rewrite malformed or obsolete state to a safe, minimal document.
-        if (!restored && !normalizeTheme(explicitTheme)) save();
+        function onReadyChanged() {
+            if (root.persistenceEnabled && Settings.ready) root.setTheme(Settings.theme, false);
+        }
     }
 
     function rgba(color, alpha) {
@@ -213,22 +196,6 @@ Item {
         }
     }
 
-    FileView {
-        id: stateFile
-        path: root.persistenceEnabled ? root.statePath : ""
-        preload: root.persistenceEnabled
-        atomicWrites: true
-        printErrors: false
-        onLoaded: if (root.persistenceEnabled) root.restore(text())
-        onLoadFailed: if (root.persistenceEnabled) root.restore("")
-    }
-
-    Timer {
-        id: stateCommit
-        interval: 80
-        onTriggered: if (root.pendingState) stateFile.setText(root.pendingState)
-    }
-
     Process {
         id: wallpaperDiscovery
         property bool produced: false
@@ -311,5 +278,8 @@ Item {
         function refresh(): string { root.refreshWallpaper(); return root.dynamicStatus; }
     }
 
-    Component.onCompleted: if (!persistenceEnabled) restore("")
+    Component.onCompleted: {
+        if (persistenceEnabled) Settings.initialize();
+        setTheme(Settings.theme, false);
+    }
 }

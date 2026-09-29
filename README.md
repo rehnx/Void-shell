@@ -133,6 +133,75 @@ qs ipc call theme setTheme dynamic
 runs only when dynamic mode is selected or explicitly refreshed. Validate the
 engine with `dbus-run-session -- python3 tests/theme/check.py`.
 
+Phase 11 adds one reactive customization owner in
+`shell/services/Settings.qml`. ThemeManager, Motion and the existing visual
+tokens consume it, so changes reach the bar, launcher, panels, calendar and
+OSD without restarting Quickshell. No settings GUI is included.
+
+| Setting | Values | Default |
+| --- | --- | --- |
+| `theme` | Existing built-in IDs and `dynamic` | `void-dark` |
+| `transparency` | 0–1; opaque to the palette's original glass transparency | 1 |
+| `blurStrength` | Integer 0–16; 0 disables shell blur requests | 8 |
+| `cornerRadius` | Integer 0–40 pixels; smaller radii scale with it | 28 |
+| `density` | 0.8–1.25 spacing scale | 1 |
+| `animationSpeed` | `fast`, `normal`, `slow` | `normal` |
+| `reducedMotion` | Boolean | `false` |
+| `barPosition` | `top`, `bottom` | `top` |
+| `modules` | Object mapping module names to booleans | All visible |
+| `layoutMode` | `compact`, `comfortable` | `comfortable` |
+| `fontFamily` | Nonempty font family, up to 128 characters | `Sans Serif` |
+| `fontScale` | 0.8–1.5 | 1 |
+| `animationsEnabled` | Boolean | `true` |
+| `notificationsEnabled` | Boolean | `true` |
+| `osdEnabled` | Boolean | `true` |
+
+Module names are `workspaces`, `activeWindow`, `media`, `systemStats`, `tray`,
+`wifi`, `volume`, `clock`, `calendar`, `notifications`, `power` and
+`controlCenter`. Hiding a module removes its bar space; panel keyboard
+shortcuts remain available. Bottom placement also moves the adjacent panels
+and toasts and keeps the OSD above the bar. Disabling notifications hides
+current toasts and ignores new notifications while retaining existing history.
+Re-enabling notifications or OSD does not replay suppressed content.
+
+Use the internal IPC interface; values and patches are JSON:
+
+```sh
+qs ipc call settings get
+qs ipc call settings set fontScale 1.15
+qs ipc call settings set barPosition '"bottom"'
+qs ipc call settings update '{"theme":"warm-glass","modules":{"media":false}}'
+qs ipc call settings status
+qs ipc call settings path
+qs ipc call settings flush
+qs ipc call settings reset
+```
+
+QML consumers use `Settings.setValue(key, value)` or `Settings.update(patch)`.
+Numbers are clamped to their supported ranges; invalid types, unknown keys
+and unsupported choices reject the entire patch. Missing or malformed files
+recover to defaults, and valid fields in partially invalid files are retained.
+Writes are atomic and coalesced for 80 ms; `flush` waits for pending persistence.
+The versioned document is `settings.json` in Quickshell's XDG state directory
+(`$XDG_STATE_HOME`, or `~/.local/state`). On first use, the old `theme.json`
+is migrated without modifying it. `VOID_SETTINGS_PATH` selects an alternate
+file; the existing `VOID_THEME_STATE` override remains supported.
+
+`VOID_THEME`, `VOID_MOTION_LEVEL`, `VOID_MOTION` and `VOID_REDUCED_MOTION`
+remain session overrides and are not saved merely by starting the shell.
+An explicit runtime change to the corresponding setting replaces that override.
+Positive blur strength uses Hyprland's compositor-wide `decoration:blur:size`
+option, affecting other blurred windows too; palettes such as AMOLED still
+disable shell blur. Unavailable compositor IPC leaves the shell usable and
+is reported by `settings status`.
+
+The customization integration check uses temporary settings and a fake
+compositor socket, with power commands disabled:
+
+```sh
+dbus-run-session -- python3 tests/settings/check.py
+```
+
 ## Dependencies
 
 Install these Arch packages (an AUR helper may be needed for Quickshell):

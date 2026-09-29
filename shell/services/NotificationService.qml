@@ -7,7 +7,7 @@ Item {
     property var entries: []
     property var live: ({})
     readonly property var history: entries.filter(entry => !entry.transient)
-    readonly property var toasts: entries.filter(entry => entry.toast).slice(0, 3)
+    readonly property var toasts: Settings.notificationsEnabled ? entries.filter(entry => entry.toast).slice(0, 3) : []
     readonly property int count: history.length
     readonly property int historyLimit: 100
     readonly property int defaultTimeout: 6000
@@ -32,6 +32,10 @@ Item {
     function receive(notification) {
         const id = notification.id;
         notification.tracked = true;
+        if (!Settings.notificationsEnabled) {
+            notification.dismiss();
+            return;
+        }
         if (!live[id]) {
             live[id] = notification;
             notification.closed.connect(reason => root.closed(id, reason));
@@ -51,6 +55,7 @@ Item {
     }
 
     function refresh(id) {
+        if (!Settings.notificationsEnabled) return;
         const notification = live[id];
         if (!notification) return;
         const previous = entries.find(entry => entry.id === id);
@@ -82,6 +87,13 @@ Item {
 
     function hideToasts() {
         entries = entries.map(entry => Object.assign({}, entry, { toast: false }));
+    }
+
+    Connections {
+        target: Settings
+        function onNotificationsEnabledChanged() {
+            if (!Settings.notificationsEnabled) root.hideToasts();
+        }
     }
 
     function schedule() {

@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import "../services"
 
 PanelWindow {
     id: root
@@ -22,7 +23,7 @@ PanelWindow {
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     PopupSurface {
         id: surface
-        shown: root.service.osdVisible
+        shown: Settings.osdEnabled && root.service.osdVisible
         direction: 1
         anchors.fill: parent
         anchors.margins: theme.spacingSmall

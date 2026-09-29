@@ -51,8 +51,9 @@ PanelWindow {
             width: Math.min(theme.panelWidth, parent.width - theme.spacingMedium * 2)
             height: Math.min(theme.panelHeight, parent.height - theme.panelTop - theme.spacingMedium)
             x: parent.width - width - theme.spacingMedium
-            y: theme.panelTop
-            transformOrigin: Item.TopRight
+            y: Theme.panelY(parent.height, height)
+            direction: Theme.panelDirection
+            transformOrigin: Theme.barAtBottom ? Item.BottomRight : Item.TopRight
             elevated: true
             MouseArea { anchors.fill: parent; onClicked: mouse => mouse.accepted = true }
             ColumnLayout {

@@ -6,6 +6,7 @@ import Quickshell
 import Quickshell.Wayland
 import "components"
 import "widgets"
+import "services"
 
 PanelWindow {
     id: root
@@ -35,21 +36,27 @@ PanelWindow {
     }
 
     anchors {
-        top: true
+        top: !Theme.barAtBottom
+        bottom: Theme.barAtBottom
         left: true
         right: true
     }
 
     RowLayout {
+        objectName: "barModules"
         anchors.fill: parent
         anchors.leftMargin: Theme.spacingMedium
         anchors.rightMargin: Theme.spacingMedium
         spacing: Theme.spacingCompact
 
         Workspaces {
+            objectName: "module-workspaces"
+            visible: Settings.moduleVisible("workspaces")
         }
 
         ActiveWindow {
+            objectName: "module-activeWindow"
+            visible: Settings.moduleVisible("activeWindow")
             Layout.fillWidth: true
             Layout.minimumWidth: 0
             Layout.maximumWidth: Theme.activeWindowMaximumWidth
@@ -60,6 +67,8 @@ PanelWindow {
         }
 
         MediaWidget {
+            objectName: "module-media"
+            visible: Settings.moduleVisible("media")
             Layout.fillWidth: true
             Layout.preferredWidth: Theme.mediaWidgetWidth
             Layout.minimumWidth: Theme.mediaWidgetMinimum
@@ -69,30 +78,50 @@ PanelWindow {
         }
 
         SystemStats {
+            objectName: "module-systemStats"
+            visible: Settings.moduleVisible("systemStats")
             service: root.systemService
         }
 
         Tray {
+            objectName: "module-tray"
+            visible: Settings.moduleVisible("tray")
         }
 
         WifiStatus {
+            objectName: "module-wifi"
+            visible: Settings.moduleVisible("wifi")
         }
 
         VolumeStatus {
+            objectName: "module-volume"
+            visible: Settings.moduleVisible("volume")
         }
 
-        Clock { }
-
-        ShellButton { text: "Calendar"; onClicked: root.calendarRequested() }
+        Clock { objectName: "module-clock"; visible: Settings.moduleVisible("clock") }
 
         ShellButton {
+            objectName: "module-calendar"
+            visible: Settings.moduleVisible("calendar")
+            text: "Calendar"; onClicked: root.calendarRequested()
+        }
+
+        ShellButton {
+            objectName: "module-notifications"
+            visible: Settings.moduleVisible("notifications")
             text: "Notifications" + (root.notificationCount > 0 ? " · " + root.notificationCount : "")
             onClicked: root.notificationsRequested()
         }
 
-        ShellButton { text: "Power"; onClicked: root.powerRequested() }
+        ShellButton {
+            objectName: "module-power"
+            visible: Settings.moduleVisible("power")
+            text: "Power"; onClicked: root.powerRequested()
+        }
 
         ShellButton {
+            objectName: "module-controlCenter"
+            visible: Settings.moduleVisible("controlCenter")
             implicitWidth: Theme.buttonHeight
             implicitHeight: Theme.buttonHeight
             Accessible.name: "Open Control Center"

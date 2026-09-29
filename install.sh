@@ -56,6 +56,8 @@ done
 install_managed_file "$project_dir/shell/services/NotificationService.qml" "$shell_dir/services/NotificationService.qml"
 install_managed_file "$project_dir/shell/services/MediaService.qml" "$shell_dir/services/MediaService.qml"
 install_managed_file "$project_dir/shell/services/SystemService.qml" "$shell_dir/services/SystemService.qml"
+install_managed_file "$project_dir/shell/services/Settings.qml" "$shell_dir/services/Settings.qml"
+install_managed_file "$project_dir/shell/services/qmldir" "$shell_dir/services/qmldir"
 install_managed_file "$project_dir/shell/widgets/MediaWidget.qml" "$shell_dir/widgets/MediaWidget.qml"
 install_managed_file "$project_dir/shell/widgets/Calendar.qml" "$shell_dir/widgets/Calendar.qml"
 install_managed_file "$project_dir/shell/widgets/SystemStats.qml" "$shell_dir/widgets/SystemStats.qml"
@@ -82,4 +84,4 @@ if [[ $backup_created == true ]]; then
     printf 'Backed up replaced files to %s\n' "$backup_dir"
 fi
 
-printf 'RehanShell Phase 10 installation complete.\n'
+printf 'RehanShell Phase 11 installation complete.\n'

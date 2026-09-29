@@ -9,6 +9,7 @@ import "theme"
 
 ShellRoot {
     id: root
+    Component.onCompleted: Settings.compositorEnabled = true
     ThemeManager { id: themeManager }
     SystemService { id: system }
     OSD { service: system }

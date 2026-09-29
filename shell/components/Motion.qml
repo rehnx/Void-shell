@@ -1,12 +1,12 @@
 pragma Singleton
 import QtQuick
-import Quickshell
+import "../services"
 
 QtObject {
-    // Public configuration seam for future settings. Environment is read once.
-    property bool enabled: Quickshell.env("VOID_MOTION") !== "off"
-    property bool reducedMotion: Quickshell.env("VOID_REDUCED_MOTION") === "1"
-    property string level: Quickshell.env("VOID_MOTION_LEVEL") || "normal"
+    // Writable for existing callers/tests; the shell uses the settings bindings.
+    property bool enabled: Settings.animationsEnabled
+    property bool reducedMotion: Settings.reducedMotion
+    property string level: Settings.animationSpeed
     readonly property bool spatial: enabled && !reducedMotion
     readonly property real speed: level === "fast" ? 0.7 : level === "slow" ? 1.4 : 1
     readonly property int instant: 0

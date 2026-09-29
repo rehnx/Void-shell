@@ -57,8 +57,12 @@ PanelWindow {
     implicitHeight: Math.max(retainedHeight, stack.implicitHeight + theme.spacingMedium * 2)
     exclusiveZone: 0
     exclusionMode: ExclusionMode.Ignore
-    anchors { top: true; right: true }
-    margins { top: theme.panelTop; right: theme.spacingMedium }
+    anchors { top: !Theme.barAtBottom; bottom: Theme.barAtBottom; right: true }
+    margins {
+        top: Theme.barAtBottom ? 0 : Theme.panelTop
+        bottom: Theme.barAtBottom ? Theme.panelTop : 0
+        right: Theme.spacingMedium
+    }
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
     Column {
