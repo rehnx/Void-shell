@@ -157,8 +157,8 @@ OSD without restarting Quickshell. No settings GUI is included.
 | `osdEnabled` | Boolean | `true` |
 
 Module names are `workspaces`, `activeWindow`, `media`, `systemStats`, `tray`,
-`wifi`, `volume`, `clock`, `calendar`, `notifications`, `power` and
-`controlCenter`. Hiding a module removes its bar space; panel keyboard
+`wifi`, `volume`, `clock`, `calendar`, `notifications`, `power`,
+`controlCenter` and `developerCenter`. Hiding a module removes its bar space; panel keyboard
 shortcuts remain available. Bottom placement also moves the adjacent panels
 and toasts and keeps the OSD above the bar. Disabling notifications hides
 current toasts and ignores new notifications while retaining existing history.
@@ -201,6 +201,48 @@ compositor socket, with power commands disabled:
 ```sh
 dbus-run-session -- python3 tests/settings/check.py
 ```
+
+Phase 12 adds Developer Center. Open it from the bar's `‹/›` button or
+`Super+Shift+D`; Escape, the close button or a click outside dismisses it.
+It shares the existing floating surfaces, typography, themes and motion,
+including bottom-bar positioning and the full customization settings.
+
+Resource cards show CPU, RAM, temperature, battery and root disk usage.
+The remaining sections show uptime, hostname, distro, kernel, compositor and
+session, active workspace/app/window, network connectivity, audio/microphone
+status, load averages and a process-state summary. Missing services or hardware
+show an unavailable state. Click an information value to copy it; Refresh
+updates cached information. Expand Paths & build to copy or open shell source,
+settings, Hyprland config and shell-state locations, and inspect disk capacity,
+Void Shell version and Quickshell runtime information. `VOID_BUILD_REVISION`
+can supply a distributor's build identifier; source builds identify themselves
+as source distributions rather than claiming a Git revision.
+
+Developer Center extends the existing `SystemService`: CPU/RAM/temperature
+sampling remains every five seconds when closed and becomes every two seconds
+while open. Uptime/load reads stop when closed. Static `/proc` and os-release
+information is loaded lazily and cached; network, audio, battery and compositor
+state use the existing native services. Disk and process snapshots use `df`
+and `ps` automatically at most every 30 seconds while open, with a five-second
+timeout that also bounds any helpers still finishing after the panel closes.
+Reopening within that interval uses the cache; manual refresh is limited to
+once per second and never overlaps an existing snapshot. Closed resource cards
+do not animate.
+GNU `df` (`coreutils`) and `ps` (`procps-ng`) are optional; their sections remain
+usable with an unavailable state if those tools cannot run.
+
+Developer Center integration checks use a private bus, temporary settings and
+disabled power actions. They cover interaction, themes/customization, optional
+services, missing or stalled diagnostic tools, live updates and monitoring
+suspension:
+
+```sh
+dbus-run-session -- python3 tests/developer/check.py
+```
+
+For an idle CPU comparison, point `VOID_DEVELOPER_BASELINE` to an untouched
+Phase 11 checkout and add `--performance` to that command. `--visual` saves a
+panel preview under `/tmp/void-phase12-preview.png`.
 
 ## Dependencies
 

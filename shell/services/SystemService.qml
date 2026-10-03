@@ -1,6 +1,8 @@
 import QtQuick
+import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import Quickshell.Networking
 import Quickshell.Services.Pipewire
 import Quickshell.Services.UPower
 
@@ -37,6 +39,130 @@ Item {
         ? UPowerDeviceState.toString(battery.state)
         : "Unavailable"
     readonly property bool onBattery: UPower.onBattery
+
+    // Developer Center shares the bar's sampler. Additional reads are lazy and
+    // bounded; no disk/process helper starts while the panel is closed.
+    property bool developerActive: false
+    property bool developerInitialized: false
+    property double memoryTotal: 0
+    property double memoryUsed: 0
+    property double uptimeSeconds: 0
+    property string hostname: "Unavailable"
+    property string kernel: "Unavailable"
+    property string distro: "Unavailable"
+    property string cpuModel: "Unavailable"
+    property string loadAverage: "Unavailable"
+    property var disks: []
+    property var processSummary: null
+    property double diagnosticsRequestedAt: 0
+    property double diagnosticsUpdatedAt: 0
+    readonly property bool developerRefreshing: diskReader.running || processReader.running
+    readonly property int statsInterval: developerActive ? 2000 : 5000
+    readonly property string homePath: Quickshell.env("HOME") || ""
+    readonly property string configPath: xdgPath("XDG_CONFIG_HOME", ".config")
+    readonly property string statePath: xdgPath("XDG_STATE_HOME", ".local/state")
+    readonly property string shellVersion: "0.12.0 · Phase 12"
+    readonly property string shellBuild: Quickshell.env("VOID_BUILD_REVISION") || "Source distribution"
+    readonly property string runtimeVersion: (Qt.application.name || "Quickshell")
+        + (Qt.application.version ? " " + Qt.application.version : "")
+    readonly property string sessionInfo: (Quickshell.env("XDG_CURRENT_DESKTOP")
+        || (Hyprland.requestSocketPath ? "Hyprland" : "Unknown compositor")) + " · "
+        + (Quickshell.env("XDG_SESSION_TYPE") || (Quickshell.env("WAYLAND_DISPLAY") ? "wayland" : "Unknown session"))
+    readonly property var activeWorkspace: Hyprland.focusedWorkspace
+    readonly property string workspaceName: activeWorkspace ? (activeWorkspace.name || String(activeWorkspace.id)) : "Unavailable"
+    readonly property var activeWindow: Hyprland.activeToplevel
+    readonly property string windowTitle: activeWindow && activeWindow.title ? activeWindow.title : "Desktop"
+    readonly property string windowApp: activeWindow && activeWindow.wayland
+        ? activeWindow.wayland.appId || "Unknown app" : "Unavailable"
+    readonly property var connectedDevice: Networking.devices.values.find(device => device.connected) || null
+    readonly property string networkStatus: Networking.backend === NetworkBackendType.None
+        || Networking.devices.values.length === 0 ? "Unavailable"
+        : connectedDevice ? ConnectionState.toString(connectedDevice.state) : "Disconnected"
+    readonly property string networkDetail: connectedDevice
+        ? connectedDevice.name + " · " + (connectedDevice.networks.values.find(network => network.connected)?.name || "Wired")
+        : "No active connection"
+    readonly property string internetStatus: NetworkConnectivity.toString(Networking.connectivity)
+    readonly property string audioStatus: audioAvailable
+        ? (sink.audio.muted ? "Muted" : Math.round(sink.audio.volume * 100) + "%") : "Unavailable"
+    readonly property string audioDevice: audioAvailable ? sink.description || sink.name : "No output device"
+    readonly property string microphoneStatus: microphoneAvailable
+        ? (source.audio.muted ? "Muted" : Math.round(source.audio.volume * 100) + "%") : "Unavailable"
+    readonly property var developerPaths: [
+        { label: "Shell source", value: Quickshell.shellDir, folder: Quickshell.shellDir },
+        { label: "Settings", value: Settings.path, folder: Settings.path.slice(0, Settings.path.lastIndexOf("/")) },
+        { label: "Hyprland config", value: configPath ? configPath + "/hypr" : "", folder: configPath ? configPath + "/hypr" : "" },
+        { label: "Shell state", value: Quickshell.stateDir, folder: Quickshell.stateDir }
+    ]
+
+    function xdgPath(variable, suffix) {
+        const value = Quickshell.env(variable) || "";
+        return value.startsWith("/") ? value : homePath.startsWith("/") ? homePath + "/" + suffix : "";
+    }
+    function formatBytes(value) {
+        if (!Number.isFinite(value) || value < 0) return "Unavailable";
+        if (value < 1024 * 1024 * 1024) return (value / (1024 * 1024)).toFixed(0) + " MiB";
+        return (value / (1024 * 1024 * 1024)).toFixed(1) + " GiB";
+    }
+    function formatUptime(seconds) {
+        if (!(seconds > 0)) return "Unavailable";
+        const minutes = Math.floor(seconds / 60);
+        return (minutes >= 1440 ? Math.floor(minutes / 1440) + "d " : "")
+            + Math.floor(minutes / 60) % 24 + "h " + minutes % 60 + "m";
+    }
+    function parseDistro(text) {
+        // os-release is data, never sourced as shell code.
+        const values = {};
+        for (const line of text.split("\n")) {
+            const match = line.match(/^(PRETTY_NAME|NAME|VERSION)=([\s\S]*)$/);
+            if (!match) continue;
+            let value = match[2].trim();
+            if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'")))
+                value = value.slice(1, -1).replace(/\\(["\\$`])/g, "$1");
+            values[match[1]] = value;
+        }
+        distro = values.PRETTY_NAME || [values.NAME, values.VERSION].filter(Boolean).join(" ") || "Unavailable";
+    }
+    function parseDisks(text) {
+        const result = [];
+        for (const line of text.split("\n")) {
+            const match = line.match(/^\s*(\d+)\s+(\d+)\s+(\d+)\s+\d+%\s+(.+)$/);
+            if (!match || Number(match[1]) <= 0 || result.some(disk => disk.mount === match[4])) continue;
+            result.push({ mount: match[4], total: Number(match[1]), used: Number(match[2]),
+                available: Number(match[3]), usage: Math.max(0, Math.min(1, Number(match[2]) / Number(match[1]))) });
+        }
+        disks = result;
+    }
+    function parseProcesses(text) {
+        const result = { total: 0, running: 0, sleeping: 0, blocked: 0, stopped: 0, zombies: 0, other: 0 };
+        for (const line of text.trim().split("\n")) {
+            const state = line.trim().charAt(0);
+            if (!"RSDTtZXIWP".includes(state) || !state) continue;
+            result.total++;
+            const key = state === "R" ? "running" : state === "S" || state === "I" ? "sleeping"
+                : state === "D" ? "blocked" : state === "T" || state === "t" ? "stopped"
+                : state === "Z" ? "zombies" : "other";
+            result[key]++;
+        }
+        processSummary = result.total ? result : null;
+    }
+    function refreshDeveloper(force) {
+        if (!developerActive) return;
+        if (!developerInitialized) developerInitialized = true;
+        else if (force) {
+            hostnameFile.reload(); kernelFile.reload(); distroFile.reload(); cpuInfoFile.reload();
+        }
+        refreshStats();
+        const now = Date.now();
+        // Reopening quickly uses the cached snapshot; explicit refresh is bounded.
+        if (developerRefreshing || now - diagnosticsRequestedAt < (force ? 1000 : 30000)) return;
+        diagnosticsRequestedAt = now;
+        diskReader.startedSuccessfully = false;
+        processReader.startedSuccessfully = false;
+        diskReader.running = true;
+        processReader.running = true;
+        diagnosticsTimeout.restart();
+    }
+    onDeveloperActiveChanged: if (developerActive) refreshDeveloper(false)
 
     signal powerActionRequested(string action)
 
@@ -119,6 +245,8 @@ Item {
         const availableMatch = text.match(/^MemAvailable:\s+(\d+)/m);
         if (!totalMatch || !availableMatch) return;
         const total = Number(totalMatch[1]);
+        memoryTotal = total * 1024;
+        memoryUsed = Math.max(0, total - Number(availableMatch[1])) * 1024;
         memoryUsage = total > 0 ? Math.max(0, Math.min(1, 1 - Number(availableMatch[1]) / total)) : 0;
     }
 
@@ -126,6 +254,7 @@ Item {
         cpuFile.reload();
         memoryFile.reload();
         if (temperatureFile.path) temperatureFile.reload();
+        if (developerActive) { uptimeFile.reload(); loadFile.reload(); }
     }
 
     function performPowerAction(action) {
@@ -160,7 +289,16 @@ Item {
     }
     Timer { id: osdTimeout; interval: 1500; onTriggered: root.osdVisible = false }
     Timer { interval: 1000; running: true; onTriggered: root.refreshStats() }
-    Timer { interval: 5000; repeat: true; running: true; onTriggered: root.refreshStats() }
+    Timer { interval: root.statsInterval; repeat: true; running: true; onTriggered: root.refreshStats() }
+    Timer { interval: 30000; repeat: true; running: root.developerActive; onTriggered: root.refreshDeveloper(false) }
+    Timer {
+        id: diagnosticsTimeout
+        interval: 5000
+        onTriggered: {
+            if (diskReader.running) { diskReader.signal(9); root.disks = []; }
+            if (processReader.running) { processReader.signal(9); root.processSummary = null; }
+        }
+    }
     Timer { id: brightnessCommit; interval: 70; onTriggered: root.writeBrightness() }
 
     FileView {
@@ -187,6 +325,90 @@ Item {
             root.temperature = root.temperatureAvailable ? (raw > 1000 ? raw / 1000 : raw) : 0;
         }
         onLoadFailed: root.temperatureAvailable = false
+    }
+    FileView {
+        id: hostnameFile
+        path: root.developerInitialized ? "/proc/sys/kernel/hostname" : ""
+        preload: true; printErrors: false
+        onLoaded: root.hostname = text().trim() || "Unavailable"
+        onLoadFailed: root.hostname = "Unavailable"
+    }
+    FileView {
+        id: kernelFile
+        path: root.developerInitialized ? "/proc/sys/kernel/osrelease" : ""
+        preload: true; printErrors: false
+        onLoaded: root.kernel = text().trim() || "Unavailable"
+        onLoadFailed: root.kernel = "Unavailable"
+    }
+    FileView {
+        id: distroFile
+        path: root.developerInitialized ? "/etc/os-release" : ""
+        preload: true; printErrors: false
+        onLoaded: root.parseDistro(text())
+        onLoadFailed: if (path === "/etc/os-release") path = "/usr/lib/os-release"; else root.distro = "Unavailable"
+    }
+    FileView {
+        id: cpuInfoFile
+        path: root.developerInitialized ? "/proc/cpuinfo" : ""
+        preload: true; printErrors: false
+        onLoaded: root.cpuModel = text().match(/^(?:model name|Hardware|Processor)\s*:\s*(.+)$/m)?.[1] || "Unavailable"
+        onLoadFailed: root.cpuModel = "Unavailable"
+    }
+    FileView {
+        id: uptimeFile
+        path: root.developerInitialized ? "/proc/uptime" : ""
+        preload: true; printErrors: false
+        onLoaded: root.uptimeSeconds = Number(text().trim().split(/\s+/)[0]) || 0
+        onLoadFailed: root.uptimeSeconds = 0
+    }
+    FileView {
+        id: loadFile
+        path: root.developerInitialized ? "/proc/loadavg" : ""
+        preload: true; printErrors: false
+        onLoaded: {
+            const values = text().trim().split(/\s+/).slice(0, 3);
+            root.loadAverage = values.length === 3 && values.every(value => Number.isFinite(Number(value)))
+                ? values.join(" / ") : "Unavailable";
+        }
+        onLoadFailed: root.loadAverage = "Unavailable"
+    }
+    Process {
+        id: diskReader
+        property bool startedSuccessfully: false
+        command: ["df", "-B1", "--output=size,used,avail,pcent,target", "--", "/"].concat(root.homePath ? [root.homePath] : [])
+        // Quickshell accepts a JS object here; its metadata names QVariantHash.
+        // qmllint disable incompatible-type
+        environment: ({ LC_ALL: "C" })
+        // qmllint enable incompatible-type
+        stdout: StdioCollector { id: diskOutput }
+        stderr: StdioCollector {}
+        onStarted: startedSuccessfully = true
+        // A missing executable does not emit exited; discard stale cached data.
+        onRunningChanged: if (!running && !startedSuccessfully) root.disks = []
+        // qmllint disable signal-handler-parameters
+        onExited: (exitCode, exitStatus) => {
+            root.parseDisks(exitStatus === 0 ? diskOutput.text : "");
+            root.diagnosticsUpdatedAt = Date.now();
+        }
+        // qmllint enable signal-handler-parameters
+    }
+    Process {
+        id: processReader
+        property bool startedSuccessfully: false
+        command: ["ps", "-e", "-o", "stat="]
+        // qmllint disable incompatible-type
+        environment: ({ LC_ALL: "C" })
+        // qmllint enable incompatible-type
+        stdout: StdioCollector { id: processOutput }
+        stderr: StdioCollector {}
+        onStarted: startedSuccessfully = true
+        onRunningChanged: if (!running && !startedSuccessfully) root.processSummary = null
+        // qmllint disable signal-handler-parameters
+        onExited: (exitCode, exitStatus) => {
+            root.parseProcesses(exitCode === 0 && exitStatus === 0 ? processOutput.text : "");
+            root.diagnosticsUpdatedAt = Date.now();
+        }
+        // qmllint enable signal-handler-parameters
     }
     Process {
         id: temperatureDiscovery

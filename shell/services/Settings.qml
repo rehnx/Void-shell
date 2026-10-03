@@ -16,7 +16,7 @@ Item {
     readonly property string legacyPath: Quickshell.env("VOID_THEME_STATE") || Quickshell.statePath("theme.json")
     readonly property var availableThemes: ["void-dark", "void-light", "amoled", "warm-glass", "dynamic"]
     readonly property var moduleNames: ["workspaces", "activeWindow", "media", "systemStats", "tray",
-        "wifi", "volume", "clock", "calendar", "notifications", "power", "controlCenter"]
+        "wifi", "volume", "clock", "calendar", "notifications", "power", "developerCenter", "controlCenter"]
     readonly property string theme: state.overrides.theme ?? state.values.theme
     readonly property real transparency: state.values.transparency
     readonly property int blurStrength: state.values.blurStrength

@@ -17,6 +17,7 @@ PanelWindow {
     signal mediaRequested()
     signal calendarRequested()
     signal powerRequested()
+    signal developerRequested()
     required property var mediaService
     required property var systemService
     property int notificationCount: 0
@@ -103,12 +104,18 @@ PanelWindow {
         ShellButton {
             objectName: "module-calendar"
             visible: Settings.moduleVisible("calendar")
+            Layout.fillWidth: true
+            Layout.minimumWidth: Theme.buttonHeight
+            Layout.maximumWidth: implicitWidth
             text: "Calendar"; onClicked: root.calendarRequested()
         }
 
         ShellButton {
             objectName: "module-notifications"
             visible: Settings.moduleVisible("notifications")
+            Layout.fillWidth: true
+            Layout.minimumWidth: Theme.buttonHeight
+            Layout.maximumWidth: implicitWidth
             text: "Notifications" + (root.notificationCount > 0 ? " · " + root.notificationCount : "")
             onClicked: root.notificationsRequested()
         }
@@ -116,7 +123,18 @@ PanelWindow {
         ShellButton {
             objectName: "module-power"
             visible: Settings.moduleVisible("power")
+            Layout.fillWidth: true
+            Layout.minimumWidth: Theme.buttonHeight
+            Layout.maximumWidth: implicitWidth
             text: "Power"; onClicked: root.powerRequested()
+        }
+
+        ShellButton {
+            objectName: "module-developerCenter"
+            visible: Settings.moduleVisible("developerCenter")
+            text: "‹/›"
+            Accessible.name: "Open Developer Center"
+            onClicked: root.developerRequested()
         }
 
         ShellButton {

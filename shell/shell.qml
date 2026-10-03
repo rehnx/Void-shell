@@ -13,6 +13,11 @@ ShellRoot {
     ThemeManager { id: themeManager }
     SystemService { id: system }
     OSD { service: system }
+    DeveloperCenter {
+        id: developerCenter
+        service: system
+        onOpenedChanged: if (opened) root.closeOtherPanels("developer")
+    }
     CalendarPanel {
         id: calendarPanel
         onOpenedChanged: if (opened) root.closeOtherPanels("calendar")
@@ -29,6 +34,7 @@ ShellRoot {
         if (except !== "calendar") calendarPanel.close();
         if (except !== "power") powerMenu.close();
         if (except !== "launcher") launcher.closeLauncher();
+        if (except !== "developer") developerCenter.close();
     }
     MediaService { id: media }
     MediaPanel {
@@ -49,7 +55,7 @@ ShellRoot {
     NotificationToasts {
         service: notifications
         suppressed: notificationCenter.opened || controlCenter.visible || launcher.visible
-            || mediaPanel.opened || calendarPanel.opened || powerMenu.opened
+            || mediaPanel.opened || calendarPanel.opened || powerMenu.opened || developerCenter.opened
     }
     ControlCenter {
         id: controlCenter
@@ -75,6 +81,7 @@ ShellRoot {
                 systemService: system
                 onCalendarRequested: calendarPanel.toggle(modelData)
                 onPowerRequested: powerMenu.toggle(modelData)
+                onDeveloperRequested: developerCenter.toggle(modelData)
                 onMediaRequested: mediaPanel.toggle(modelData)
                 notificationCount: notifications.count
                 onNotificationsRequested: notificationCenter.toggle(modelData)

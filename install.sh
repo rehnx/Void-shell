@@ -61,7 +61,7 @@ install_managed_file "$project_dir/shell/services/qmldir" "$shell_dir/services/q
 install_managed_file "$project_dir/shell/widgets/MediaWidget.qml" "$shell_dir/widgets/MediaWidget.qml"
 install_managed_file "$project_dir/shell/widgets/Calendar.qml" "$shell_dir/widgets/Calendar.qml"
 install_managed_file "$project_dir/shell/widgets/SystemStats.qml" "$shell_dir/widgets/SystemStats.qml"
-for panel in NotificationCenter NotificationToasts MediaPanel CalendarPanel PowerMenu; do
+for panel in NotificationCenter NotificationToasts MediaPanel CalendarPanel PowerMenu DeveloperCenter; do
     install_managed_file "$project_dir/shell/panels/$panel.qml" "$shell_dir/panels/$panel.qml"
 done
 install_managed_file "$project_dir/shell/components/AppItem.qml" "$component_dir/AppItem.qml"
@@ -84,4 +84,4 @@ if [[ $backup_created == true ]]; then
     printf 'Backed up replaced files to %s\n' "$backup_dir"
 fi
 
-printf 'RehanShell Phase 11 installation complete.\n'
+printf 'RehanShell Phase 12 installation complete.\n'
